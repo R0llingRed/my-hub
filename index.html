@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DEV // HUB — 个人数字工作台</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/icon.svg" />
+  <link rel="stylesheet" href="./assets/theme.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-icon" src="./assets/icon.svg" alt="DEV // HUB" />
+        <span class="brand-title" id="siteTitle">DEV // HUB</span>
+        <span class="brand-sub" id="siteSub">极简工具与日常自留地</span>
+      </div>
+
+      <nav class="nav-pills" aria-label="主导航">
+        <a class="nav-pill active" href="./">工作台</a>
+        <a class="nav-pill" href="./tools/?app=it-tools">工具箱</a>
+        <a class="nav-pill" href="./vinyl/">今日一碟</a>
+        <a class="nav-pill" href="./nba/">NBA 看板</a>
+      </nav>
+
+      <div class="clock-box" title="上海时间 (Asia/Shanghai)">
+        <span id="clockDate">----.--.--</span>
+        <span class="clock-time" id="clockTime">--:--:--</span>
+      </div>
+    </header>
+
+    <main class="bento-grid">
+      <!-- IT-Tools -->
+      <a class="card card-interactive col-span-4" id="cardItTools" href="https://it-tools.tech" target="_blank" rel="noopener noreferrer">
+        <div class="card-header">
+          <span class="card-kicker">Dev Toolkit</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="kbd">1</span>
+            <span class="arrow-hint">↗</span>
+          </div>
+        </div>
+        <div class="tool-icon" style="color:#818cf8;">⌘</div>
+        <h2 class="tool-title" id="itToolsName">IT-Tools</h2>
+        <p class="tool-desc" id="itToolsDesc">开发者日常瑞士军刀。</p>
+        <div class="tags" id="itToolsTags"></div>
+      </a>
+
+      <!-- CyberChef -->
+      <a class="card card-interactive col-span-4" id="cardCyberChef" href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener noreferrer">
+        <div class="card-header">
+          <span class="card-kicker">Security &amp; Crypto</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="kbd">2</span>
+            <span class="arrow-hint">↗</span>
+          </div>
+        </div>
+        <div class="tool-icon" style="color:#34d399;">❖</div>
+        <h2 class="tool-title" id="cyberChefName">CyberChef</h2>
+        <p class="tool-desc" id="cyberChefDesc">安全与编解码流水线。</p>
+        <div class="tags" id="cyberChefTags"></div>
+      </a>
+
+      <!-- 今日一碟 Live 卡片 -->
+      <a class="card card-interactive col-span-4" id="cardVinyl" href="./vinyl/">
+        <div class="card-header">
+          <span class="card-kicker">Daily Vinyl · 今日一碟</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="kbd">3</span>
+            <span class="arrow-hint">→</span>
+          </div>
+        </div>
+        <div class="vinyl-preview">
+          <div class="vinyl-thumb-wrap">
+            <img class="vinyl-thumb" id="vinylThumb" alt="今日专辑封面" />
+            <div class="vinyl-disc-mini" id="vinylDiscMini"></div>
+          </div>
+          <div class="vinyl-meta">
+            <h3 id="vinylTitle">加载今日唱片...</h3>
+            <div class="artist" id="vinylArtist">—</div>
+            <div class="snippet" id="vinylSnippet">每天零点自动切换一张经典摇滚专辑。</div>
+          </div>
+        </div>
+        <div class="tags" style="justify-content:space-between;align-items:center;">
+          <span class="tag" id="vinylGenre">Classic Rock</span>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);" id="vinylCountdown">00:00 换碟</span>
+        </div>
+      </a>
+
+      <!-- NBA 赛程与亮点 Live 卡片 -->
+      <a class="card card-interactive col-span-8" id="cardNba" href="./nba/">
+        <div class="card-header">
+          <span class="card-kicker">NBA Live Board · 赛程与集锦</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="kbd">4</span>
+            <span class="arrow-hint">→</span>
+          </div>
+        </div>
+        <div class="nba-mini-list" id="nbaMiniList">
+          <div class="nba-mini-game">
+            <div class="nba-mini-status"><span>正在拉取今日赛程...</span></div>
+            <div class="nba-mini-row"><span>—</span><span>—</span></div>
+          </div>
+        </div>
+      </a>
+
+      <!-- 本地极简便签 -->
+      <section class="card col-span-4" aria-label="本地暂存便签">
+        <div class="card-header">
+          <span class="card-kicker">Local Scratchpad · 本地草稿</span>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);" id="scratchStatus">仅存本机</span>
+        </div>
+        <textarea
+          class="scratchpad"
+          id="scratchpad"
+          placeholder="随手记一点命令、Token 片段或待办（自动保存在浏览器 localStorage，不上传任何服务器）..."
+        ></textarea>
+      </section>
+
+      <!-- 常用快捷链接扩展位 -->
+      <section class="card col-span-12" aria-label="快捷入口">
+        <div class="card-header" style="margin-bottom:10px;">
+          <span class="card-kicker">Quick Links · 常用直达</span>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">可在 config.js 中自由增删</span>
+        </div>
+        <div class="quick-links" id="quickLinks"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>按 <span class="kbd">1</span>–<span class="kbd">4</span> 快速跳转 · 100% 纯前端本地运行</span>
+      <span id="footerDate">UTC+8</span>
+    </footer>
+  </div>
+
+  <script type="module" src="./assets/home.js"></script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBA 赛程与亮点 · DEV // HUB</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/icon.svg" />
+  <link rel="stylesheet" href="../assets/theme.css" />
+  <style>
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .date-tabs {
+      display: flex;
+      gap: 6px;
+    }
+
+    .date-tab.active {
+      background: rgba(99, 102, 241, 0.22);
+      border-color: rgba(99, 102, 241, 0.55);
+      color: #e0e7ff;
+    }
+
+    .controls-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .select-input {
+      background: rgba(24, 24, 27, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      outline: none;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .game-card {
+      gap: 14px;
+    }
+
+    .game-card.fav-game {
+      border-color: rgba(245, 158, 11, 0.45);
+      box-shadow: inset 0 1px 0 rgba(245, 158, 11, 0.2);
+    }
+
+    .game-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .team-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 0;
+    }
+
+    .team-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .team-logo {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .team-name {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .team-record {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: 6px;
+    }
+
+    .team-score {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      min-width: 38px;
+      text-align: right;
+    }
+
+    .team-score.winner {
+      color: #fff;
+    }
+
+    .team-score.loser {
+      color: var(--text-muted);
+    }
+
+    .spoiler-hidden {
+      filter: blur(7px);
+      user-select: none;
+      opacity: 0.45;
+    }
+
+    .game-leader {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      line-height: 1.5;
+    }
+
+    .game-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-icon" src="../assets/icon.svg" alt="DEV // HUB" />
+        <a class="brand-title" href="../">DEV // HUB</a>
+        <span class="brand-sub">NBA 赛程与亮点 (上海时间)</span>
+      </div>
+
+      <nav class="nav-pills" aria-label="主导航">
+        <a class="nav-pill" href="../">工作台</a>
+        <a class="nav-pill" href="../tools/?app=it-tools">工具箱</a>
+        <a class="nav-pill" href="../vinyl/">今日一碟</a>
+        <a class="nav-pill active" href="./">NBA 看板</a>
+      </nav>
+
+      <div class="clock-box" title="上海时间 (Asia/Shanghai)">
+        <span id="clockDate">----.--.--</span>
+        <span class="clock-time" id="clockTime">--:--:--</span>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <div class="date-tabs" id="dateTabs">
+        <button class="btn btn-sm date-tab" data-offset="-1">昨日赛果</button>
+        <button class="btn btn-sm date-tab active" data-offset="0">今日赛程</button>
+        <button class="btn btn-sm date-tab" data-offset="1">明日预告</button>
+      </div>
+
+      <div class="controls-right">
+        <label style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+          主队置顶
+          <select class="select-input" id="favTeamSelect">
+            <option value="">不指定</option>
+            <option value="LAL">LAL 湖人</option>
+            <option value="GSW">GSW 勇士</option>
+            <option value="BOS">BOS 凯尔特人</option>
+            <option value="DEN">DEN 掘金</option>
+            <option value="DAL">DAL 独行侠</option>
+            <option value="OKC">OKC 雷霆</option>
+            <option value="MIL">MIL 雄鹿</option>
+            <option value="PHX">PHX 太阳</option>
+            <option value="NYK">NYK 尼克斯</option>
+            <option value="MIA">MIA 热火</option>
+            <option value="MIN">MIN 森林狼</option>
+            <option value="LAC">LAC 快船</option>
+            <option value="HOU">HOU 火箭</option>
+            <option value="SAS">SAS 马刺</option>
+            <option value="CLE">CLE 骑士</option>
+          </select>
+        </label>
+
+        <label style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+          自动刷新
+          <select class="select-input" id="autoRefreshSelect">
+            <option value="0">关闭</option>
+            <option value="15">每 15 秒 (推荐)</option>
+            <option value="30">每 30 秒</option>
+            <option value="5">每 5 秒</option>
+          </select>
+        </label>
+
+        <button class="btn btn-sm" id="btnSpoiler">👀 防剧透：关</button>
+        <button class="btn btn-sm" id="btnRefresh">↻ 刷新</button>
+      </div>
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);margin-bottom:14px;" id="boardSubtitle">
+      正在加载赛程...
+    </div>
+
+    <main class="games-grid" id="gamesGrid"></main>
+
+    <footer class="footer">
+      <span>时区：Asia/Shanghai · 自动刷新仅在有进行中比赛且页面可见时触发</span>
+      <a href="../">← 返回工作台</a>
+    </footer>
+  </div>
+
+  <script type="module" src="../assets/nba.js"></script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>工具箱 · DEV // HUB</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/icon.svg" />
+  <link rel="stylesheet" href="../assets/theme.css" />
+  <style>
+    .tools-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .tool-seg {
+      display: inline-flex;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+    }
+
+    .tool-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      transition: all 0.16s ease;
+    }
+
+    .tool-tab:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tool-tab.active {
+      color: #e0e7ff;
+      background: rgba(99, 102, 241, 0.22);
+      border-color: rgba(99, 102, 241, 0.55);
+      font-weight: 500;
+    }
+
+    .frame-card {
+      padding: 0;
+      height: calc(100vh - 220px);
+      min-height: 600px;
+      background: #0d0d10;
+    }
+
+    .tool-frame {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      background: #0d0d10;
+    }
+
+    body.wide-mode .container {
+      max-width: 100%;
+      padding: 18px 20px 24px;
+    }
+
+    body.wide-mode .frame-card {
+      height: calc(100vh - 172px);
+    }
+
+    .frame-tip {
+      position: absolute;
+      bottom: 14px;
+      right: 16px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(24, 24, 27, 0.92);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-icon" src="../assets/icon.svg" alt="DEV // HUB" />
+        <a class="brand-title" href="../">DEV // HUB</a>
+        <span class="brand-sub">开发与安全工具箱</span>
+      </div>
+
+      <nav class="nav-pills" aria-label="主导航">
+        <a class="nav-pill" href="../">工作台</a>
+        <a class="nav-pill active" href="./?app=it-tools">工具箱</a>
+        <a class="nav-pill" href="../vinyl/">今日一碟</a>
+        <a class="nav-pill" href="../nba/">NBA 看板</a>
+      </nav>
+
+      <div class="clock-box" title="上海时间 (Asia/Shanghai)">
+        <span id="clockDate">----.--.--</span>
+        <span class="clock-time" id="clockTime">--:--:--</span>
+      </div>
+    </header>
+
+    <div class="tools-toolbar">
+      <div class="tool-seg" role="tablist" aria-label="工具切换">
+        <button class="tool-tab" id="tabItTools" data-app="it-tools">⌘ IT-Tools</button>
+        <button class="tool-tab" id="tabCyberChef" data-app="cyberchef">❖ CyberChef</button>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="btn btn-sm" id="btnWideMode">⛶ 宽屏模式</button>
+        <a class="btn btn-sm" id="btnExternal" href="#" target="_blank" rel="noopener noreferrer">新标签页打开 ↗</a>
+      </div>
+    </div>
+
+    <main class="card frame-card">
+      <iframe
+        id="toolFrame"
+        class="tool-frame"
+        title="站内工具工作区"
+        allow="clipboard-read; clipboard-write"
+      ></iframe>
+
+      <div class="frame-tip" id="frameTip" style="display:none;">
+        <span>如页面未加载，请点击右上角「新标签页打开」。</span>
+        <button class="btn btn-sm" id="btnDismissTip" style="padding:2px 8px;">知道了</button>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { SITE_CONFIG } from '../config.js';
+    import { startClock } from '../assets/common.js';
+
+    // 首次访问时为同源内置的 IT-Tools 默认启用深色模式，与主站视觉无缝衔接
+    try {
+      if (!localStorage.getItem('vueuse-color-scheme')) {
+        localStorage.setItem('vueuse-color-scheme', 'dark');
+      }
+    } catch (_) {}
+
+    startClock(
+      document.getElementById('clockDate'),
+      document.getElementById('clockTime')
+    );
+
+    const APPS = {
+      'it-tools': {
+        name: SITE_CONFIG.tools.itTools.name,
+        url: resolveToolUrl(SITE_CONFIG.tools.itTools.url),
+      },
+      cyberchef: {
+        name: SITE_CONFIG.tools.cyberChef.name,
+        url: resolveToolUrl(SITE_CONFIG.tools.cyberChef.url),
+      },
+    };
+
+    function resolveToolUrl(rawUrl) {
+      if (/^https?:\/\//i.test(rawUrl) || rawUrl.startsWith('/')) {
+        return rawUrl;
+      }
+      // 相对根目录路径（如 ./apps/it-tools/）在 /tools/ 下需要回退一级
+      return rawUrl.startsWith('./') ? `../${rawUrl.slice(2)}` : `../${rawUrl}`;
+    }
+
+    const frame = document.getElementById('toolFrame');
+    const btnExternal = document.getElementById('btnExternal');
+    const btnWideMode = document.getElementById('btnWideMode');
+    const frameTip = document.getElementById('frameTip');
+
+    // 宽屏模式记忆
+    if (localStorage.getItem('tools_wide_mode') === '1') {
+      document.body.classList.add('wide-mode');
+      btnWideMode.textContent = '⊡ 标准宽度';
+    }
+
+    btnWideMode.addEventListener('click', () => {
+      const isWide = document.body.classList.toggle('wide-mode');
+      localStorage.setItem('tools_wide_mode', isWide ? '1' : '0');
+      btnWideMode.textContent = isWide ? '⊡ 标准宽度' : '⛶ 宽屏模式';
+    });
+
+    document.getElementById('btnDismissTip').addEventListener('click', () => {
+      frameTip.style.display = 'none';
+      localStorage.setItem('workspace_tip_dismissed', '1');
+    });
+
+    function selectApp(appKey) {
+      const key = APPS[appKey] ? appKey : 'it-tools';
+      const app = APPS[key];
+      frame.src = app.url;
+      btnExternal.href = app.url;
+      document.title = `${app.name} · DEV // HUB`;
+
+      // 仅外链站点时提示一次
+      const isExternal = /^https?:\/\//i.test(app.url);
+      frameTip.style.display =
+        isExternal && localStorage.getItem('workspace_tip_dismissed') !== '1'
+          ? 'flex'
+          : 'none';
+
+      document.querySelectorAll('.tool-tab').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.app === key);
+      });
+
+      const url = new URL(window.location.href);
+      url.searchParams.set('app', key);
+      window.history.replaceState({}, '', url);
+    }
+
+    document.querySelectorAll('.tool-tab').forEach((btn) => {
+      btn.addEventListener('click', () => selectApp(btn.dataset.app));
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    selectApp(params.get('app') || 'it-tools');
+  </script>
+</body>
+</html>

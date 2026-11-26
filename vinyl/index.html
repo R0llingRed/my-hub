@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>今日一碟 · Daily Vinyl</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/icon.svg" />
+  <link rel="stylesheet" href="../assets/theme.css" />
+  <style>
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      transition: background 0.8s ease;
+    }
+
+    .vinyl-layout {
+      display: grid;
+      grid-template-columns: 380px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    .sleeve-stage {
+      position: relative;
+      padding: 20px 44px 20px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .sleeve-wrap {
+      position: relative;
+      width: 290px;
+      height: 290px;
+    }
+
+    .album-cover {
+      position: relative;
+      z-index: 2;
+      width: 290px;
+      height: 290px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.72);
+      background: #18181b;
+    }
+
+    .vinyl-record {
+      position: absolute;
+      top: 12px;
+      right: -76px;
+      width: 266px;
+      height: 266px;
+      border-radius: 50%;
+      z-index: 1;
+      background:
+        radial-gradient(circle at center, #09090b 0 4%, var(--vinyl-accent, #6366f1) 4.5% 19%, #141416 19.5% 21%,
+          repeating-radial-gradient(circle at center, #111113 0 2px, #1c1c20 2px 4px) 21% 98%, #09090b 98% 100%);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: transform 0.5s ease;
+    }
+
+    .vinyl-record::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(
+        from 20deg,
+        transparent 0deg,
+        rgba(255, 255, 255, 0.09) 35deg,
+        transparent 70deg,
+        transparent 180deg,
+        rgba(255, 255, 255, 0.07) 215deg,
+        transparent 250deg
+      );
+    }
+
+    .vinyl-record.spinning {
+      animation: spin 7s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: translateX(18px) rotate(0deg); }
+      to { transform: translateX(18px) rotate(360deg); }
+    }
+
+    .vinyl-meta-badges {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .pill-badge {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+    }
+
+    .album-heading {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+    }
+
+    .album-artist {
+      font-size: 17px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .review-box {
+      padding: 16px 18px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 3px solid var(--vinyl-accent, #6366f1);
+      font-size: 14.5px;
+      line-height: 1.75;
+      color: #d4d4d8;
+      margin-bottom: 22px;
+    }
+
+    .now-playing-bar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      border-radius: 10px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      font-size: 13px;
+    }
+
+    .now-playing-bar.visible {
+      display: flex;
+    }
+
+    .progress-track {
+      position: relative;
+      flex: 1;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    .progress-rail {
+      position: relative;
+      width: 100%;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .progress-fill {
+      position: relative;
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: var(--vinyl-accent, #818cf8);
+    }
+
+    .progress-thumb {
+      position: absolute;
+      right: -6px;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fafafa;
+      border: 2px solid var(--vinyl-accent, #818cf8);
+      transform: translateY(-50%) scale(0.9);
+      transition: transform 0.12s ease;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .progress-track:hover .progress-thumb,
+    .progress-track.dragging .progress-thumb {
+      transform: translateY(-50%) scale(1.2);
+    }
+
+    .tracklist {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .track-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      transition: all 0.16s ease;
+    }
+
+    .track-item.playable {
+      cursor: pointer;
+    }
+
+    .track-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .track-item.active {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--vinyl-accent, rgba(99, 102, 241, 0.5));
+    }
+
+    .track-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .track-num {
+      width: 24px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .track-title {
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .preview-chip {
+      font-size: 10.5px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary);
+    }
+
+    .listen-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .shelf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .shelf-card {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      text-align: left;
+      transition: all 0.16s ease;
+    }
+
+    .shelf-card:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: var(--border-hover);
+    }
+
+    .shelf-card.selected {
+      border-color: var(--vinyl-accent, #6366f1);
+      background: rgba(99, 102, 241, 0.12);
+    }
+
+    @media (max-width: 860px) {
+      .vinyl-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sleeve-stage {
+        padding: 12px 32px 12px 0;
+      }
+
+      .sleeve-wrap,
+      .album-cover {
+        width: 230px;
+        height: 230px;
+      }
+
+      .vinyl-record {
+        width: 210px;
+        height: 210px;
+        right: -58px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow" id="ambientGlow"></div>
+
+  <div class="container">
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-icon" src="../assets/icon.svg" alt="DEV // HUB" />
+        <a class="brand-title" href="../">DEV // HUB</a>
+        <span class="brand-sub">今日一碟 · Daily Vinyl</span>
+      </div>
+
+      <nav class="nav-pills" aria-label="主导航">
+        <a class="nav-pill" href="../">工作台</a>
+        <a class="nav-pill" href="../tools/?app=it-tools">工具箱</a>
+        <a class="nav-pill active" href="./">今日一碟</a>
+        <a class="nav-pill" href="../nba/">NBA 看板</a>
+      </nav>
+
+      <div class="clock-box">
+        <span id="clockDate">----.--.--</span>
+        <span class="clock-time" id="clockTime">--:--:--</span>
+      </div>
+    </header>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span class="pill-badge" id="dayBadge">今日推荐</span>
+        <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);" id="midnightCountdown">距离零点换碟 --:--:--</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm" id="btnToday" style="display:none;">回到今日</button>
+        <button class="btn btn-sm" id="btnRandom">🎲 随机盲抽</button>
+        <button class="btn btn-sm" id="btnToggleShelf">📚 近期唱片架</button>
+      </div>
+    </div>
+
+    <main class="card" style="padding:28px;">
+      <div class="vinyl-layout">
+        <div>
+          <div class="sleeve-stage">
+            <div class="sleeve-wrap">
+              <img class="album-cover" id="albumCover" alt="专辑封面" />
+              <div class="vinyl-record" id="vinylRecord"></div>
+            </div>
+          </div>
+
+          <div class="listen-links" id="listenLinks"></div>
+          <p style="font-size:12px;color:var(--text-muted);margin:12px 0 0;line-height:1.6;">
+            点击右侧带有 <span style="color:var(--text-secondary);">▶ 30s</span> 标记的曲目，可在页面内直接试听前奏并转动黑胶。
+          </p>
+        </div>
+
+        <div>
+          <div class="vinyl-meta-badges">
+            <span class="pill-badge" id="albumYear">----</span>
+            <span class="pill-badge" id="albumGenre">Rock</span>
+            <span class="pill-badge" id="albumIndexBadge">#01</span>
+          </div>
+
+          <h1 class="album-heading" id="albumTitle">加载中...</h1>
+          <div class="album-artist" id="albumArtist">—</div>
+
+          <div class="review-box" id="albumReview">正在从唱片架取出今天的经典摇滚专辑...</div>
+
+          <div class="now-playing-bar" id="nowPlayingBar">
+            <button class="btn btn-sm" id="btnPlayPause">⏸ 暂停</button>
+            <span id="nowPlayingTitle" style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">—</span>
+            <div class="progress-track" id="progressTrack" role="slider" aria-label="播放进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+              <div class="progress-rail">
+                <div class="progress-fill" id="progressFill">
+                  <span class="progress-thumb"></span>
+                </div>
+              </div>
+            </div>
+            <span id="audioTimeLabel" style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);font-variant-numeric:tabular-nums;min-width:66px;text-align:right;">0:00 / 0:30</span>
+          </div>
+
+          <div class="card-header" style="margin-bottom:8px;">
+            <span class="card-kicker">Tracklist · 曲目表</span>
+            <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);" id="trackCount">0 首</span>
+          </div>
+
+          <ul class="tracklist" id="tracklist"></ul>
+        </div>
+      </div>
+    </main>
+
+    <!-- 近期 7 天唱片架 -->
+    <section class="card" id="shelfSection" style="margin-top:18px;display:none;">
+      <div class="card-header" style="margin-bottom:4px;">
+        <span class="card-kicker">Recent 7 Days · 近期唱片架</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">点击可切换回听</span>
+      </div>
+      <div class="shelf-grid" id="shelfGrid"></div>
+    </section>
+
+    <footer class="footer">
+      <span>曲库位于 data/albums.json，随时可添加你私藏的经典专辑</span>
+      <a href="../">← 返回工作台</a>
+    </footer>
+  </div>
+
+  <audio id="audioPlayer" preload="none"></audio>
+  <script type="module" src="../assets/vinyl.js"></script>
+</body>
+</html>
