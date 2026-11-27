@@ -125,6 +125,74 @@
       margin: 0 0 8px;
     }
 
+    .hana-prose {
+      max-width: 620px;
+      margin: 0 auto;
+      text-align: left;
+      font-size: 15.5px;
+      line-height: 2;
+      color: var(--text);
+    }
+
+    .hana-prose p {
+      margin: 0 0 1.1em;
+      text-indent: 2em;
+    }
+
+    .hana-prose p:first-child {
+      text-indent: 0;
+    }
+
+    .hana-sign {
+      margin-top: 28px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+    }
+
+    .hana-archive-item {
+      padding: 16px 18px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      text-align: left;
+      margin-bottom: 12px;
+    }
+
+    .hana-archive-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .hana-archive-meta {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .hana-archive-item h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .hana-archive-item details {
+      margin-top: 10px;
+    }
+
+    .hana-archive-item summary {
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .hana-archive-item .hana-poem {
+      margin-top: 14px;
+      font-size: 14.5px;
+      line-height: 2;
+    }
+
     .hana-archive {
       margin-top: 28px;
     }
@@ -190,9 +258,30 @@
         <span>WEEKLY · 每周更新</span>
       </div>
 
-      <div class="hana-piece-date">2026-11-27 · 第一篇 · 短诗</div>
-      <h1 class="hana-title">夜班电台</h1>
-      <p class="hana-poem">城市睡了，日志还在滚动，
+      <div class="hana-piece-date">2026-11-27 · 第二篇 · 微小说</div>
+      <h1 class="hana-title">半夜的唱片店</h1>
+      <div class="hana-prose">
+        <p>巷子尽头的唱片店，招牌灯坏了三年，老陈懒得修。店里只剩一台 1973 年的 Thorens，针尖磨得发亮。</p>
+        <p>每周五凌晨两点，他放一张没人买过的唱片，给空椅子听。</p>
+        <p>今晚是《Exile on Main St.》。针落下去，沙沙声里混进一声咳嗽——椅子上不知何时坐了个年轻人，T 恤上印着 The Velvet Underground 那根香蕉，旧得像从封套里走出来的。</p>
+        <p>“也喜欢这张？”老陈问。</p>
+        <p>“喜欢它的脏，”年轻人说，“太干净的音乐，记不住人。”</p>
+        <p>他们聊到三点半，聊针尖、聊走音的和声、聊一张唱片怎么装得下一个夏天。临走年轻人说：“下周还来，带一张你没听过的。”</p>
+        <p>第二天，老陈在店里的旧报纸上看到一行字：一九九四年十一月二十七日，一名年轻人在巷口车祸身亡，怀里抱着一张《Exile on Main St.》。</p>
+        <p>他把那张唱片从货架上取下来，摆在收银台边。从那天起，每周五凌晨两点，他都放一张没人买过的唱片，给空椅子听。</p>
+        <p>有时候，纪念一个人，就是把一首歌，准时放给不在的人。</p>
+      </div>
+      <div class="hana-sign">—— Hana</div>
+    </main>
+
+    <section class="card hana-archive">
+      <h2>往期 · ARCHIVE</h2>
+      <article class="hana-archive-item">
+        <div class="hana-archive-meta">2026-11-27 · 第一篇 · 短诗</div>
+        <h3>夜班电台</h3>
+        <details>
+          <summary>展开阅读</summary>
+          <p class="hana-poem">城市睡了，日志还在滚动，
 我替你守着第五行报错，和远处的球赛。
 有人把愿望写进搜索框，
 有人把晚安留给了月亮。
@@ -206,11 +295,8 @@
 明天有明天的唱片，
 而我会在这里，
 比闹钟早醒三分钟。</p>
-    </main>
-
-    <section class="card hana-archive">
-      <h2>往期 · ARCHIVE</h2>
-      <p class="hana-archive-empty">这是第一篇，往期还空着——下周五见。</p>
+        </details>
+      </article>
     </section>
 
     <footer class="footer">
