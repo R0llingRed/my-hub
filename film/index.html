@@ -22,6 +22,14 @@
       align-items: start;
     }
 
+    .film-layout > * {
+      min-width: 0;
+    }
+
+    .film-main-card {
+      padding: 28px;
+    }
+
     .poster-frame {
       position: relative;
       width: 100%;
@@ -213,12 +221,43 @@
 
     @media (max-width: 860px) {
       .film-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+      }
+
+      .film-main-card {
+        padding: 18px 16px;
       }
 
       .poster-frame {
         max-width: 300px;
         margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .poster-frame {
+        max-width: 240px;
+        padding: 16px;
+      }
+
+      .poster-center-title {
+        font-size: 22px;
+      }
+
+      .film-heading {
+        font-size: 24px;
+        overflow-wrap: anywhere;
+      }
+
+      .note-input {
+        min-width: 0;
+        width: 100%;
+        flex-basis: 100%;
+      }
+
+      .shelf-grid {
+        grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
       }
     }
   </style>
@@ -262,7 +301,7 @@
       </div>
     </div>
 
-    <main class="card" style="padding:28px;">
+    <main class="card film-main-card">
       <div class="film-layout">
         <div>
           <div class="poster-frame" id="posterFrame">

@@ -275,6 +275,10 @@ button {
   gap: 16px;
 }
 
+.bento-grid > * {
+  min-width: 0;
+}
+
 .col-span-4 { grid-column: span 4; }
 .col-span-5 { grid-column: span 5; }
 .col-span-6 { grid-column: span 6; }
@@ -719,5 +723,64 @@ button {
   .nav-pill {
     padding: 4px 9px;
     font-size: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 16px 14px 48px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .card-header {
+    flex-wrap: wrap;
+  }
+
+  .topbar {
+    gap: 10px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+  }
+
+  .clock-box {
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .vinyl-preview {
+    gap: 12px;
+  }
+
+  .vinyl-thumb-wrap,
+  .vinyl-thumb {
+    width: 76px;
+    height: 76px;
+  }
+
+  .vinyl-disc-mini {
+    width: 66px;
+    height: 66px;
+    top: 5px;
+    right: -14px;
+  }
+
+  .vinyl-meta {
+    padding-left: 8px;
+  }
+
+  .digest-mini-meta {
+    display: none;
+  }
+
+  .drawer-header {
+    padding: 14px 16px;
+  }
+
+  .drawer-body {
+    padding: 16px 14px 28px;
   }
 }

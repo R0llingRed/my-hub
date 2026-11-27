@@ -22,6 +22,15 @@
       align-items: start;
     }
 
+    .vinyl-layout > *,
+    .quiz-layout > * {
+      min-width: 0;
+    }
+
+    .vinyl-main-card {
+      padding: 28px;
+    }
+
     .sleeve-stage {
       position: relative;
       padding: 20px 44px 20px 0;
@@ -465,11 +474,29 @@
     @media (max-width: 860px) {
       .vinyl-layout,
       .quiz-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+      }
+
+      .quiz-cover-box {
+        margin: 0 auto;
+      }
+
+      .quiz-opt {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+
+      .vinyl-main-card {
+        padding: 18px 16px;
+      }
+
+      .quiz-panel {
+        padding: 18px 16px;
       }
 
       .quiz-options {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
       }
 
       .sleeve-stage {
@@ -486,6 +513,99 @@
         width: 210px;
         height: 210px;
         right: -58px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .sleeve-stage {
+        padding: 8px 44px 8px 0;
+      }
+
+      .sleeve-wrap,
+      .album-cover {
+        width: 184px;
+        height: 184px;
+      }
+
+      .vinyl-record {
+        width: 168px;
+        height: 168px;
+        top: 8px;
+        right: -44px;
+      }
+
+      .vinyl-record.spinning {
+        animation: spin-mobile 7s linear infinite;
+      }
+
+      @keyframes spin-mobile {
+        from { transform: translateX(10px) rotate(0deg); }
+        to { transform: translateX(10px) rotate(360deg); }
+      }
+
+      .album-heading {
+        font-size: 24px;
+        overflow-wrap: anywhere;
+      }
+
+      .album-artist {
+        font-size: 15px;
+        margin-bottom: 14px;
+      }
+
+      .review-box {
+        padding: 13px 14px;
+        font-size: 13.5px;
+      }
+
+      .note-input {
+        min-width: 0;
+        width: 100%;
+        flex-basis: 100%;
+      }
+
+      .now-playing-bar {
+        flex-wrap: wrap;
+        gap: 8px 10px;
+        padding: 10px 12px;
+      }
+
+      .now-playing-bar .progress-track {
+        order: 3;
+        flex-basis: 100%;
+      }
+
+      #nowPlayingTitle {
+        max-width: none !important;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .track-item {
+        padding: 8px;
+        gap: 8px;
+      }
+
+      .track-left {
+        gap: 8px;
+      }
+
+      .track-title {
+        font-size: 13px;
+      }
+
+      .quiz-cover-box {
+        width: 176px;
+        height: 176px;
+      }
+
+      .focus-bar {
+        padding: 14px 16px;
+        gap: 10px;
+      }
+
+      .shelf-grid {
+        grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
       }
     }
   </style>
@@ -570,7 +690,7 @@
       </div>
     </section>
 
-    <main class="card" style="padding:28px;">
+    <main class="card vinyl-main-card">
       <div class="vinyl-layout">
         <div>
           <div class="sleeve-stage">
