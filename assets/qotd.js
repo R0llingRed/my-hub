@@ -1,4 +1,5 @@
 import {
+  copyText,
   escapeHtml,
   getDailyItemIndex,
   startClock,
@@ -107,12 +108,8 @@ function renderCategories(list) {
 function bindCardActions(root) {
   root.querySelectorAll('.btn-copy-snippet').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(btn.dataset.snippet);
-        btn.textContent = '✓ 已复制';
-      } catch (_) {
-        btn.textContent = '复制失败';
-      }
+      const ok = await copyText(btn.dataset.snippet);
+      btn.textContent = ok ? '✓ 已复制' : '复制失败';
       setTimeout(() => {
         btn.textContent = '复制片段';
       }, 1400);

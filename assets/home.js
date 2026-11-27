@@ -1,6 +1,7 @@
 import { SITE_CONFIG } from '../config.js';
 import {
   buildFallbackCover,
+  copyText,
   escapeHtml,
   fetchCuratedDigest,
   fetchGeekDigest,
@@ -206,12 +207,8 @@ async function initQotdWidget() {
       `;
       document.getElementById('btnCopyHomeTip').addEventListener('click', async (e) => {
         const btn = e.currentTarget;
-        try {
-          await navigator.clipboard.writeText(tip.snippet);
-          btn.textContent = '✓ 已复制';
-        } catch (_) {
-          btn.textContent = '复制失败';
-        }
+        const ok = await copyText(tip.snippet);
+        btn.textContent = ok ? '✓ 已复制' : '复制失败';
         setTimeout(() => {
           btn.textContent = '复制命令/片段';
         }, 1400);
@@ -269,7 +266,8 @@ async function initQotdWidget() {
 // 8. 加载 NBA 迷你预览（按上海时间当日赛程，最多 3 场，主队优先）
 async function initNbaWidget() {
   const listEl = document.getElementById('nbaMiniList');
-  const favTeam = localStorage.getItem('nba_fav_team') || SITE_CONFIG.nba.defaultFavoriteTeam;
+  const favTeam = localStorage.getItem('nba_fav_team') ?? SITE_CONFIG.nba.defaultFavoriteTeam;
+  const spoilerFree = localStorage.getItem('nba_spoiler_free') === '1';
   const sh = getShanghaiDate(0);
 
   try {
@@ -309,6 +307,7 @@ async function initNbaWidget() {
             ? '<span>已结束</span>'
             : `<span>${formatShanghaiEventTime(ev.date).hm} 上海</span>`;
         const favStar = isFavGame(ev, favTeam) ? '★ ' : '';
+        const blurClass = spoilerFree && state !== 'pre' ? 'spoiler-hidden' : '';
         return `
           <div class="nba-mini-game">
             <div class="nba-mini-status">
@@ -317,11 +316,11 @@ async function initNbaWidget() {
             </div>
             <div class="nba-mini-row">
               <span>${escapeHtml(away?.team?.shortDisplayName || away?.team?.abbreviation || '-')}</span>
-              <strong>${state === 'pre' ? '-' : escapeHtml(away?.score ?? '-')}</strong>
+              <strong class="${blurClass}">${state === 'pre' ? '-' : escapeHtml(away?.score ?? '-')}</strong>
             </div>
             <div class="nba-mini-row">
               <span>${escapeHtml(home?.team?.shortDisplayName || home?.team?.abbreviation || '-')}</span>
-              <strong>${state === 'pre' ? '-' : escapeHtml(home?.score ?? '-')}</strong>
+              <strong class="${blurClass}">${state === 'pre' ? '-' : escapeHtml(home?.score ?? '-')}</strong>
             </div>
           </div>
         `;

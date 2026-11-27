@@ -101,6 +101,38 @@ export function escapeHtml(str) {
 }
 
 /**
+ * 剪贴板写入（兼容局域网 HTTP 预览环境的降级复制）
+ */
+export async function copyText(text) {
+  const value = String(text ?? '');
+  if (navigator.clipboard?.writeText && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(value);
+      return true;
+    } catch (_) {
+      // fall through to execCommand fallback
+    }
+  }
+  const ta = document.createElement('textarea');
+  ta.value = value;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  ta.style.pointerEvents = 'none';
+  document.body.appendChild(ta);
+  ta.select();
+  ta.setSelectionRange(0, value.length);
+  let ok = false;
+  try {
+    ok = document.execCommand('copy');
+  } catch (_) {
+    ok = false;
+  }
+  document.body.removeChild(ta);
+  return ok;
+}
+
+/**
  * 根据上海时间日期确定性地选出当天的索引（支持 salt 避免不同模块同索引同步）
  */
 export function getDailyItemIndex(total, offsetDays = 0, salt = 0) {

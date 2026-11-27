@@ -60,6 +60,10 @@ function isSafeHttpUrl(url) {
   return typeof url === 'string' && /^https?:\/\//i.test(url);
 }
 
+function formatInlineCode(text) {
+  return escapeHtml(text).replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+}
+
 function hasSummaryContent(item) {
   return Boolean(
     item &&
@@ -144,7 +148,7 @@ function renderList() {
             <div style="min-width:0;flex:1;">
               ${
                 hasSummary
-                  ? `<button type="button" class="digest-title-btn" data-open-idx="${idx}">${escapeHtml(displayTitle)}</button>`
+                  ? `<button type="button" class="digest-title-btn">${escapeHtml(displayTitle)}</button>`
                   : `<a class="digest-title digest-link" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" data-id="${escapeHtml(item.id)}">${escapeHtml(displayTitle)} ↗</a>`
               }
               ${showOrig ? `<div class="digest-orig-title">${escapeHtml(item.title)}</div>` : ''}
@@ -243,17 +247,17 @@ function renderDrawerContent() {
   const tldrText = item.tldr || item.summary || '';
   const tldrHtml = tldrText
     ? `<div class="card-kicker" style="margin-bottom:8px;">TL;DR · 一句话结论</div>
-       <div class="summary-tldr-box">${escapeHtml(tldrText)}</div>`
+       <div class="summary-tldr-box">${formatInlineCode(tldrText)}</div>`
     : '';
 
   const bulletsHtml = (item.bullets || []).length
     ? `<div class="card-kicker" style="margin-bottom:8px;">Key Takeaways · 核心要点</div>
-       <ul class="summary-bullets">${item.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`
+       <ul class="summary-bullets">${item.bullets.map((b) => `<li>${formatInlineCode(b)}</li>`).join('')}</ul>`
     : '';
 
   const museHtml = item.museTake
     ? `<div class="card-kicker" style="margin-bottom:8px;color:#fda4af;">✦ Muse 的视角</div>
-       <div class="muse-take-box">${escapeHtml(item.museTake)}</div>`
+       <div class="muse-take-box">${formatInlineCode(item.museTake)}</div>`
     : '';
 
   const safeUrl = isSafeHttpUrl(item.url) ? item.url : '';

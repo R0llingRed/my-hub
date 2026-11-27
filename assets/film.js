@@ -1,4 +1,5 @@
 import {
+  copyText,
   escapeHtml,
   formatCountdown,
   getDailyItemIndex,
@@ -16,7 +17,10 @@ const btnToday = document.getElementById('btnToday');
 const btnWatched = document.getElementById('btnWatched');
 const starBtns = Array.from(document.querySelectorAll('.star-btn'));
 const filmNoteInput = document.getElementById('filmNoteInput');
-const shelfSection = document.getElementById('shelfSection');
+const btnToggleShelf = document.getElementById('btnToggleShelf');
+const filmShelfDrawer = document.getElementById('filmShelfDrawer');
+const btnCloseFilmShelf = document.getElementById('btnCloseFilmShelf');
+const filmShelfSearch = document.getElementById('filmShelfSearch');
 const shelfGrid = document.getElementById('shelfGrid');
 const paletteHint = document.getElementById('paletteHint');
 
@@ -75,14 +79,25 @@ starBtns.forEach((btn) => {
 });
 
 let noteTimer;
-filmNoteInput.addEventListener('input', () => {
+function flushFilmNote() {
   const film = films[currentFilmIdx];
   if (!film) return;
   clearTimeout(noteTimer);
+  saveFilmLog(film.id, { note: filmNoteInput.value.trim() });
+}
+
+filmNoteInput.addEventListener('input', () => {
+  const film = films[currentFilmIdx];
+  if (!film) return;
+  const targetId = film.id;
+  const value = filmNoteInput.value.trim();
+  clearTimeout(noteTimer);
   noteTimer = setTimeout(() => {
-    saveFilmLog(film.id, { note: filmNoteInput.value.trim() });
+    saveFilmLog(targetId, { note: value });
   }, 240);
 });
+
+filmNoteInput.addEventListener('blur', flushFilmNote);
 
 function renderFilm(idx, badgeText) {
   currentFilmIdx = idx;
@@ -138,12 +153,8 @@ function renderFilm(idx, badgeText) {
   paletteStrip.querySelectorAll('.palette-swatch-lg').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const hex = btn.dataset.hex;
-      try {
-        await navigator.clipboard.writeText(hex);
-        paletteHint.textContent = `已复制 ${hex}`;
-      } catch (_) {
-        paletteHint.textContent = hex;
-      }
+      const ok = await copyText(hex);
+      paletteHint.textContent = ok ? `已复制 ${hex}` : hex;
       setTimeout(() => {
         paletteHint.textContent = '点击色块复制 HEX';
       }, 1500);
@@ -160,6 +171,19 @@ function renderFilm(idx, badgeText) {
   `;
 
   renderPersonalLog(film);
+}
+
+function openFilmShelfDrawer() {
+  filmShelfDrawer.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  btnToggleShelf.classList.add('btn-primary');
+  renderShelf();
+}
+
+function closeFilmShelfDrawer() {
+  filmShelfDrawer.classList.remove('open');
+  document.body.style.overflow = '';
+  btnToggleShelf.classList.remove('btn-primary');
 }
 
 function renderShelf() {
@@ -183,41 +207,63 @@ function renderShelf() {
     items = films.map((film, idx) => ({
       idx,
       film,
-      topLabel: `#${String(idx + 1).padStart(2, '0')} · ${film.genre}`,
+      topLabel: `#${String(idx + 1).padStart(2, '0')} · ${film.year}`,
       clickLabel: `全部片库 · #${String(idx + 1).padStart(2, '0')}`,
     }));
+    if (shelfMode === 'watched') {
+      items = items.filter(({ film }) => Boolean(notes[film.id]?.watched));
+    }
+  }
+
+  const kw = (filmShelfSearch?.value || '').trim().toLowerCase();
+  if (kw) {
+    items = items.filter(({ film }) =>
+      `${film.title} ${film.originalTitle} ${film.director} ${film.genre} ${film.year}`.toLowerCase().includes(kw)
+    );
   }
 
   const watchedCount = films.filter((f) => notes[f.id]?.watched).length;
-  document.getElementById('shelfSummary').textContent = `已看 ${watchedCount} / ${films.length} · 点击切换`;
+  document.getElementById('shelfSummary').textContent = `已看 ${watchedCount} / ${films.length}`;
+
+  if (!items.length) {
+    shelfGrid.innerHTML = `<div class="card" style="grid-column:1 / -1;text-align:center;padding:36px 20px;color:var(--text-secondary);">没有找到匹配的影片</div>`;
+    return;
+  }
 
   shelfGrid.innerHTML = items
     .map(({ idx, film, topLabel, clickLabel }) => {
       const log = notes[film.id] || {};
+      const palette = (film.palette || [film.accentColor || '#6366f1']).slice(0, 5);
       const badge = log.watched
         ? `<span style="color:#6ee7b7;">✓${log.rating ? ` ★${log.rating}` : ''}</span>`
-        : '';
+        : `<span style="color:#fbbf24;">★ ${escapeHtml(film.rating)}</span>`;
       return `
-        <button class="shelf-card ${idx === currentFilmIdx ? 'selected' : ''}" data-idx="${idx}" data-label="${escapeHtml(clickLabel)}">
-          <div style="display:flex;justify-content:space-between;gap:6px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-bottom:6px;">
-            <span>${escapeHtml(topLabel)}</span>
-            ${badge}
+        <button class="film-crate-card ${idx === currentFilmIdx ? 'selected' : ''}" data-idx="${idx}" data-label="${escapeHtml(clickLabel)}">
+          <div class="film-crate-palette">
+            ${palette.map((hex) => `<span style="background:${escapeHtml(hex)};"></span>`).join('')}
           </div>
-          <div style="font-size:14px;font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-            ${escapeHtml(film.title)}
-          </div>
-          <div style="font-size:12px;color:var(--text-secondary);">
-            ${escapeHtml(film.director)} (${film.year})
+          <div class="film-crate-body">
+            <div style="display:flex;justify-content:space-between;gap:6px;font-family:var(--font-mono);font-size:10.5px;color:var(--text-muted);margin-bottom:5px;">
+              <span>${escapeHtml(topLabel)}</span>
+              ${badge}
+            </div>
+            <div style="font-size:13.5px;font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              ${escapeHtml(film.title)}
+            </div>
+            <div style="font-size:11.5px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              ${escapeHtml(film.director)} · ${escapeHtml(film.genre)}
+            </div>
           </div>
         </button>
       `;
     })
     .join('');
 
-  shelfGrid.querySelectorAll('.shelf-card').forEach((btn) => {
+  shelfGrid.querySelectorAll('.film-crate-card').forEach((btn) => {
     btn.addEventListener('click', () => {
       renderFilm(Number(btn.dataset.idx), btn.dataset.label);
-      renderShelf();
+      closeFilmShelfDrawer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
 }
@@ -249,6 +295,8 @@ document.querySelectorAll('[data-shelf-tab]').forEach((tab) => {
   });
 });
 
+filmShelfSearch.addEventListener('input', renderShelf);
+
 btnToday.addEventListener('click', () => {
   renderFilm(todayFilmIdx);
   renderShelf();
@@ -264,8 +312,22 @@ document.getElementById('btnRandomFilm').addEventListener('click', () => {
   renderShelf();
 });
 
-document.getElementById('btnToggleShelf').addEventListener('click', () => {
-  shelfSection.style.display = shelfSection.style.display === 'none' ? 'block' : 'none';
+btnToggleShelf.addEventListener('click', () => {
+  if (filmShelfDrawer.classList.contains('open')) {
+    closeFilmShelfDrawer();
+  } else {
+    openFilmShelfDrawer();
+  }
+});
+
+btnCloseFilmShelf.addEventListener('click', closeFilmShelfDrawer);
+filmShelfDrawer.addEventListener('click', (e) => {
+  if (e.target === filmShelfDrawer) closeFilmShelfDrawer();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && filmShelfDrawer.classList.contains('open')) {
+    closeFilmShelfDrawer();
+  }
 });
 
 async function init() {

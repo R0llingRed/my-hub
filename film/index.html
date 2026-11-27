@@ -193,30 +193,76 @@
       outline: none;
     }
 
+    /* Film Archive Slide-over Drawer */
+    .film-shelf-panel {
+      width: min(820px, 100vw);
+    }
+
+    .shelf-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .shelf-search {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 7px 12px;
+      color: var(--text);
+      font-size: 13px;
+      min-width: 220px;
+      outline: none;
+    }
+
+    .shelf-search:focus {
+      border-color: var(--film-accent, #6366f1);
+    }
+
     .shelf-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
-      gap: 12px;
-      margin-top: 14px;
+      gap: 14px;
     }
 
-    .shelf-card {
-      padding: 12px;
+    .film-crate-card {
+      padding: 0 0 12px;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.07);
       text-align: left;
-      transition: all 0.16s ease;
+      overflow: hidden;
+      transition: all 0.18s ease;
     }
 
-    .shelf-card:hover {
+    .film-crate-card:hover {
+      transform: translateY(-2px);
       background: rgba(255, 255, 255, 0.07);
       border-color: var(--border-hover);
     }
 
-    .shelf-card.selected {
+    .film-crate-card.selected {
       border-color: var(--film-accent, #6366f1);
       background: rgba(99, 102, 241, 0.12);
+    }
+
+    .film-crate-palette {
+      display: flex;
+      height: 10px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .film-crate-palette span {
+      flex: 1;
+      height: 100%;
+    }
+
+    .film-crate-body {
+      padding: 0 12px;
     }
 
     @media (max-width: 860px) {
@@ -254,6 +300,11 @@
         min-width: 0;
         width: 100%;
         flex-basis: 100%;
+      }
+
+      .shelf-search {
+        min-width: 0;
+        width: 100%;
       }
 
       .shelf-grid {
@@ -365,24 +416,40 @@
       </div>
     </main>
 
-    <section class="card" id="shelfSection" style="margin-top:18px;display:none;">
-      <div class="card-header" style="margin-bottom:4px;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <span class="card-kicker">Film Archive · 片单库</span>
-          <div class="qotd-tabs">
-            <button class="qotd-tab active" data-shelf-tab="recent">近期 7 天</button>
-            <button class="qotd-tab" data-shelf-tab="all" id="tabAllFilms">全部片库</button>
-          </div>
-        </div>
-        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);" id="shelfSummary">点击切换</span>
-      </div>
-      <div class="shelf-grid" id="shelfGrid"></div>
-    </section>
-
     <footer class="footer">
       <span>片库位于 data/films.json，随时可增补你钟爱的佳片</span>
       <a href="../">← 返回工作台</a>
     </footer>
+  </div>
+
+  <!-- 片单库滑出抽屉 -->
+  <div class="drawer-backdrop" id="filmShelfDrawer" role="dialog" aria-modal="true" aria-label="片单库">
+    <div class="drawer-panel film-shelf-panel">
+      <div class="drawer-header">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="card-kicker">Film Archive · 片单库</span>
+          <span class="pill-badge" id="shelfSummary">已看 0 / 0</span>
+        </div>
+        <button class="btn btn-sm" id="btnCloseFilmShelf">✕ 关闭</button>
+      </div>
+      <div class="drawer-body">
+        <div class="shelf-controls">
+          <div class="qotd-tabs" role="tablist" aria-label="片单筛选">
+            <button class="qotd-tab active" data-shelf-tab="recent">近期 7 天</button>
+            <button class="qotd-tab" data-shelf-tab="all" id="tabAllFilms">全部片库</button>
+            <button class="qotd-tab" data-shelf-tab="watched">✓ 已看</button>
+          </div>
+          <input
+            type="search"
+            class="shelf-search"
+            id="filmShelfSearch"
+            placeholder="搜索片名、导演、类型或年份..."
+            aria-label="搜索片单"
+          />
+        </div>
+        <div class="shelf-grid" id="shelfGrid"></div>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="../assets/film.js"></script>

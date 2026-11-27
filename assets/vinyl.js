@@ -24,7 +24,10 @@ const progressTrack = document.getElementById('progressTrack');
 const progressFill = document.getElementById('progressFill');
 const audioTimeLabel = document.getElementById('audioTimeLabel');
 const btnToday = document.getElementById('btnToday');
-const shelfSection = document.getElementById('shelfSection');
+const btnToggleShelf = document.getElementById('btnToggleShelf');
+const shelfDrawer = document.getElementById('shelfDrawer');
+const btnCloseShelf = document.getElementById('btnCloseShelf');
+const shelfSearchInput = document.getElementById('shelfSearchInput');
 const shelfGrid = document.getElementById('shelfGrid');
 
 const btnListened = document.getElementById('btnListened');
@@ -98,14 +101,25 @@ starBtns.forEach((btn) => {
 });
 
 let noteSaveTimer;
-albumNoteInput.addEventListener('input', () => {
+function flushAlbumNote() {
   const album = albums[currentAlbumIdx];
   if (!album) return;
   clearTimeout(noteSaveTimer);
+  saveAlbumLog(album.id, { note: albumNoteInput.value.trim() });
+}
+
+albumNoteInput.addEventListener('input', () => {
+  const album = albums[currentAlbumIdx];
+  if (!album) return;
+  const targetId = album.id;
+  const value = albumNoteInput.value.trim();
+  clearTimeout(noteSaveTimer);
   noteSaveTimer = setTimeout(() => {
-    saveAlbumLog(album.id, { note: albumNoteInput.value.trim() });
+    saveAlbumLog(targetId, { note: value });
   }, 240);
 });
+
+albumNoteInput.addEventListener('blur', flushAlbumNote);
 
 // ==================== 播放器与倒计时 ====================
 function formatSec(sec) {
@@ -147,6 +161,7 @@ function stopPlayback() {
   vinylRecord.classList.remove('spinning');
   nowPlayingBar.classList.remove('visible');
   progressFill.style.width = '0%';
+  audioTimeLabel.textContent = '0:00 / 0:30';
   activeTrackIdx = -1;
   document.querySelectorAll('.track-item.active').forEach((el) => el.classList.remove('active'));
 }
@@ -335,8 +350,11 @@ const quizPanel = document.getElementById('quizPanel');
 const btnToggleQuiz = document.getElementById('btnToggleQuiz');
 const btnCloseQuiz = document.getElementById('btnCloseQuiz');
 const quizCover = document.getElementById('quizCover');
+const quizMysteryMask = document.getElementById('quizMysteryMask');
+const quizMysteryVinyl = document.getElementById('quizMysteryVinyl');
 const quizPrompt = document.getElementById('quizPrompt');
 const quizHint = document.getElementById('quizHint');
+const btnQuizClue = document.getElementById('btnQuizClue');
 const quizOptionsEl = document.getElementById('quizOptions');
 const quizResultText = document.getElementById('quizResultText');
 const btnNextQuiz = document.getElementById('btnNextQuiz');
@@ -370,12 +388,16 @@ async function startQuizRound() {
   quizLocked = false;
   quizAudio.pause();
   quizAudio.currentTime = 0;
+  quizMysteryVinyl.classList.remove('spinning');
   quizProgressFill.style.width = '0%';
   quizTimeLabel.textContent = '0:00';
   btnNextQuiz.style.display = 'none';
+  btnQuizClue.style.display = 'none';
   quizResultText.textContent = '';
   quizCover.classList.add('blurred');
+  quizMysteryMask.classList.remove('revealed');
   quizPrompt.textContent = '正在抽取随机谜题与前奏片段...';
+  quizHint.textContent = '封面已隐藏 · 准备就绪后点击播放前奏';
   quizOptionsEl.innerHTML = '';
   updateQuizStreakUI();
 
@@ -408,13 +430,16 @@ async function startQuizRound() {
   if (chosenPreview) {
     quizPlayerBar.style.display = 'flex';
     quizAudio.src = chosenPreview;
-    quizPrompt.textContent = `线索：${targetAlbum.year} · ${targetAlbum.genre}`;
-    quizHint.textContent = '点击播放 30 秒前奏，结合模糊封面猜出这是哪张专辑';
+    quizMysteryMask.classList.remove('revealed');
+    quizPrompt.textContent = '盲听挑战：这是哪张经典唱片？';
+    quizHint.textContent = '封面已隐藏 · 点击下方播放 30 秒前奏（答完后揭晓封面）';
+    btnQuizClue.style.display = 'inline-flex';
     btnQuizPlay.textContent = '▶ 播放前奏';
   } else {
     quizPlayerBar.style.display = 'none';
+    quizMysteryMask.classList.add('revealed');
     quizPrompt.textContent = `模糊封面猜碟 · ${targetAlbum.year} · ${targetAlbum.genre}`;
-    quizHint.textContent = '当前网络未获取到试听片段，已切换为封面视觉猜碟模式';
+    quizHint.textContent = '当前网络未获取到试听片段，已切换为模糊封面视觉猜碟模式';
   }
 
   const distractors = shuffleArray(albums.map((_, i) => i).filter((i) => i !== chosenIdx)).slice(0, 3);
@@ -440,7 +465,9 @@ async function startQuizRound() {
 function handleQuizAnswer(pickedIdx, btnEl) {
   if (quizLocked) return;
   quizLocked = true;
+  quizMysteryMask.classList.add('revealed');
   quizCover.classList.remove('blurred');
+  btnQuizClue.style.display = 'none';
 
   const isCorrect = pickedIdx === quizTargetIdx;
   const target = albums[quizTargetIdx];
@@ -500,19 +527,43 @@ btnQuizPlay.addEventListener('click', () => {
   }
 });
 
+btnQuizClue.addEventListener('click', () => {
+  const target = albums[quizTargetIdx];
+  if (!target) return;
+  quizHint.textContent = `提示线索：${target.year} 年 · ${target.genre}`;
+  btnQuizClue.style.display = 'none';
+});
+
 quizAudio.addEventListener('play', () => {
   audio.pause();
+  quizMysteryVinyl.classList.add('spinning');
   btnQuizPlay.textContent = '⏸ 暂停';
 });
 
 quizAudio.addEventListener('pause', () => {
+  quizMysteryVinyl.classList.remove('spinning');
   btnQuizPlay.textContent = '▶ 播放前奏';
+});
+
+quizAudio.addEventListener('ended', () => {
+  quizMysteryVinyl.classList.remove('spinning');
+  quizProgressFill.style.width = '0%';
+  quizTimeLabel.textContent = '0:00';
+  btnQuizPlay.textContent = '▶ 重播前奏';
 });
 
 quizAudio.addEventListener('timeupdate', () => {
   const dur = Number.isFinite(quizAudio.duration) && quizAudio.duration > 0 ? quizAudio.duration : 30;
   quizProgressFill.style.width = `${Math.min(100, (quizAudio.currentTime / dur) * 100)}%`;
   quizTimeLabel.textContent = formatSec(quizAudio.currentTime);
+});
+
+document.getElementById('quizProgressTrack').addEventListener('click', (e) => {
+  if (!Number.isFinite(quizAudio.duration) || quizAudio.duration <= 0) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  if (!rect.width) return;
+  const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+  quizAudio.currentTime = ratio * quizAudio.duration;
 });
 
 // ==================== Web Audio 黑胶底噪 / 雨声 + 极简番茄钟 ====================
@@ -852,7 +903,43 @@ document.getElementById('btnExportPoster').addEventListener('click', async () =>
   }
 });
 
-// ==================== 唱片架（近期 7 天 / 全部曲库） ====================
+// ==================== 唱片架抽屉（黑胶唱片店视觉 + 封面懒加载） ====================
+let shelfHydrateToken = 0;
+
+function openShelfDrawer() {
+  shelfDrawer.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  btnToggleShelf.classList.add('btn-primary');
+  renderShelf();
+}
+
+function closeShelfDrawer() {
+  shelfDrawer.classList.remove('open');
+  document.body.style.overflow = '';
+  btnToggleShelf.classList.remove('btn-primary');
+  shelfHydrateToken += 1;
+}
+
+async function hydrateShelfArtworks(items, token) {
+  const BATCH_SIZE = 3;
+  for (let i = 0; i < items.length; i += BATCH_SIZE) {
+    if (token !== shelfHydrateToken || !shelfDrawer.classList.contains('open')) return;
+    const batch = items.slice(i, i + BATCH_SIZE);
+    await Promise.allSettled(
+      batch.map(async ({ album }) => {
+        const meta = await fetchItunesMetadata(album);
+        if (token !== shelfHydrateToken) return;
+        if (meta?.artwork) {
+          const img = shelfGrid.querySelector(`img[data-cover-id="${CSS.escape(album.id)}"]`);
+          if (img && img.src !== meta.artwork) {
+            img.src = meta.artwork;
+          }
+        }
+      })
+    );
+  }
+}
+
 function renderShelf() {
   const notes = loadAllNotes();
   const tabAll = document.getElementById('tabAllAlbums');
@@ -874,44 +961,87 @@ function renderShelf() {
     items = albums.map((album, idx) => ({
       idx,
       album,
-      topLabel: `#${String(idx + 1).padStart(2, '0')} · ${album.genre}`,
+      topLabel: `#${String(idx + 1).padStart(2, '0')} · ${album.year}`,
       clickLabel: `全部曲库 · #${String(idx + 1).padStart(2, '0')}`,
     }));
+    if (shelfMode === 'listened') {
+      items = items.filter(({ album }) => Boolean(notes[album.id]?.listened));
+    } else if (shelfMode === 'unlistened') {
+      items = items.filter(({ album }) => !notes[album.id]?.listened);
+    }
+  }
+
+  const kw = (shelfSearchInput?.value || '').trim().toLowerCase();
+  if (kw) {
+    items = items.filter(({ album }) =>
+      `${album.title} ${album.artist} ${album.genre} ${album.year}`.toLowerCase().includes(kw)
+    );
   }
 
   const listenedCount = albums.filter((a) => notes[a.id]?.listened).length;
-  document.getElementById('shelfSummary').textContent = `已听 ${listenedCount} / ${albums.length} · 点击切换试听`;
+  document.getElementById('shelfSummary').textContent = `已听 ${listenedCount} / ${albums.length}`;
+
+  if (!items.length) {
+    shelfGrid.innerHTML = `
+      <div class="card" style="grid-column:1 / -1;text-align:center;padding:36px 20px;color:var(--text-secondary);">
+        没有找到匹配的唱片
+      </div>
+    `;
+    return;
+  }
 
   shelfGrid.innerHTML = items
     .map(({ idx, album, topLabel, clickLabel }) => {
       const log = notes[album.id] || {};
+      const accent = album.accentColor || '#6366f1';
+      const isSelected = idx === currentAlbumIdx;
       const badge = log.listened
         ? `<span style="color:#6ee7b7;">✓${log.rating ? ` ★${log.rating}` : ''}</span>`
         : '';
+
       return `
-        <button class="shelf-card ${idx === currentAlbumIdx ? 'selected' : ''}" data-idx="${idx}" data-label="${escapeHtml(clickLabel)}">
-          <div style="display:flex;justify-content:space-between;gap:6px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-bottom:6px;">
+        <button
+          class="crate-card ${isSelected ? 'selected' : ''}"
+          style="--crate-accent:${escapeHtml(accent)};"
+          data-idx="${idx}"
+          data-label="${escapeHtml(clickLabel)}"
+        >
+          <div class="crate-sleeve-stage">
+            <div class="crate-disc"></div>
+            ${isSelected ? '<span class="crate-now-badge">PLAYING</span>' : ''}
+            <img
+              class="crate-cover"
+              data-cover-id="${escapeHtml(album.id)}"
+              src="${buildFallbackCover(album)}"
+              alt="${escapeHtml(album.title)}"
+              loading="lazy"
+            />
+          </div>
+          <div class="crate-meta-top">
             <span>${escapeHtml(topLabel)}</span>
             ${badge}
           </div>
-          <div style="font-size:14px;font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-            ${escapeHtml(album.title)}
-          </div>
-          <div style="font-size:12px;color:var(--text-secondary);">
-            ${escapeHtml(album.artist)} (${album.year})
-          </div>
+          <div class="crate-title">${escapeHtml(album.title)}</div>
+          <div class="crate-artist">${escapeHtml(album.artist)}</div>
         </button>
       `;
     })
     .join('');
 
-  shelfGrid.querySelectorAll('.shelf-card').forEach((btn) => {
+  shelfGrid.querySelectorAll('.crate-card').forEach((btn) => {
     btn.addEventListener('click', () => {
       const idx = Number(btn.dataset.idx);
+      quizAudio.pause();
       renderAlbum(idx, btn.dataset.label);
-      renderShelf();
+      closeShelfDrawer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
+
+  if (shelfDrawer.classList.contains('open')) {
+    shelfHydrateToken += 1;
+    hydrateShelfArtworks(items, shelfHydrateToken);
+  }
 }
 
 document.querySelectorAll('[data-shelf-tab]').forEach((tab) => {
@@ -923,14 +1053,18 @@ document.querySelectorAll('[data-shelf-tab]').forEach((tab) => {
   });
 });
 
-// 顶部按钮
+shelfSearchInput.addEventListener('input', renderShelf);
+
+// 顶部按钮与抽屉关闭交互
 btnToday.addEventListener('click', () => {
+  quizAudio.pause();
   renderAlbum(todayAlbumIdx);
   renderShelf();
 });
 
 document.getElementById('btnRandom').addEventListener('click', () => {
   if (albums.length <= 1) return;
+  quizAudio.pause();
   let next = currentAlbumIdx;
   while (next === currentAlbumIdx) {
     next = Math.floor(Math.random() * albums.length);
@@ -939,9 +1073,22 @@ document.getElementById('btnRandom').addEventListener('click', () => {
   renderShelf();
 });
 
-document.getElementById('btnToggleShelf').addEventListener('click', () => {
-  const isOpen = shelfSection.style.display !== 'none';
-  shelfSection.style.display = isOpen ? 'none' : 'block';
+btnToggleShelf.addEventListener('click', () => {
+  if (shelfDrawer.classList.contains('open')) {
+    closeShelfDrawer();
+  } else {
+    openShelfDrawer();
+  }
+});
+
+btnCloseShelf.addEventListener('click', closeShelfDrawer);
+shelfDrawer.addEventListener('click', (e) => {
+  if (e.target === shelfDrawer) closeShelfDrawer();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && shelfDrawer.classList.contains('open')) {
+    closeShelfDrawer();
+  }
 });
 
 async function init() {

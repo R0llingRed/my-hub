@@ -402,6 +402,8 @@
     }
 
     .quiz-cover-img {
+      position: relative;
+      z-index: 1;
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -410,6 +412,63 @@
 
     .quiz-cover-img.blurred {
       filter: blur(22px) scale(1.1);
+    }
+
+    .quiz-mystery-mask {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(99, 102, 241, 0.12), transparent 65%),
+        #0d0d11;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    .quiz-mystery-mask.revealed {
+      opacity: 0;
+    }
+
+    .quiz-mystery-vinyl {
+      width: 118px;
+      height: 118px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at center, #09090b 0 6%, #27272a 6.5% 28%, #141416 28.5% 30%,
+          repeating-radial-gradient(circle at center, #111113 0 2px, #1c1c21 2px 4px) 30% 97%, #09090b 97% 100%);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.75);
+    }
+
+    .quiz-mystery-vinyl.spinning {
+      animation: spin-mystery 6s linear infinite;
+    }
+
+    @keyframes spin-mystery {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .quiz-mystery-q {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 700;
+      color: #e4e4e7;
+    }
+
+    .quiz-mystery-label {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
     }
 
     .quiz-options {
@@ -445,30 +504,159 @@
       color: #fda4af;
     }
 
-    .shelf-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
-      gap: 12px;
-      margin-top: 14px;
+    /* Tactile Vinyl Crate Drawer */
+    .vinyl-shelf-panel {
+      width: min(860px, 100vw);
     }
 
-    .shelf-card {
-      padding: 12px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      text-align: left;
-      transition: all 0.16s ease;
+    .shelf-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
     }
 
-    .shelf-card:hover {
-      background: rgba(255, 255, 255, 0.07);
-      border-color: var(--border-hover);
+    .shelf-search {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 7px 12px;
+      color: var(--text);
+      font-size: 13px;
+      min-width: 220px;
+      outline: none;
+      transition: border-color 0.16s ease;
     }
 
-    .shelf-card.selected {
+    .shelf-search:focus {
       border-color: var(--vinyl-accent, #6366f1);
-      background: rgba(99, 102, 241, 0.12);
+    }
+
+    .crate-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+      gap: 24px 16px;
+      padding-top: 12px;
+    }
+
+    .crate-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 12px 14px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.015) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-bottom: 3px solid rgba(255, 255, 255, 0.12);
+      text-align: left;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .crate-card:hover {
+      transform: translateY(-3px);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: var(--border-hover);
+      box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.75);
+    }
+
+    .crate-card.selected {
+      border-color: var(--crate-accent, #6366f1);
+      border-bottom-color: var(--crate-accent, #6366f1);
+      background: rgba(99, 102, 241, 0.11);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 12px 28px -10px rgba(99, 102, 241, 0.35);
+    }
+
+    .crate-sleeve-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      margin-top: 8px;
+      margin-bottom: 12px;
+    }
+
+    .crate-disc {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      width: 82%;
+      height: 82%;
+      border-radius: 50%;
+      transform: translateX(-50%);
+      background:
+        radial-gradient(circle at center, #09090b 0 6%, var(--crate-accent, #6366f1) 6.5% 23%, #141416 23.5% 26%,
+          repeating-radial-gradient(circle at center, #111113 0 2px, #1d1d21 2px 4px) 26% 97%, #09090b 97% 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.65);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 1;
+    }
+
+    .crate-card:hover .crate-disc,
+    .crate-card.selected .crate-disc {
+      transform: translateX(-50%) translateY(-14px) rotate(24deg);
+    }
+
+    .crate-cover {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      border-radius: 9px;
+      object-fit: cover;
+      background: #18181b;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.62);
+      display: block;
+    }
+
+    .crate-now-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      z-index: 3;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      background: rgba(9, 9, 11, 0.84);
+      color: #fafafa;
+      border: 1px solid var(--crate-accent, #6366f1);
+      backdrop-filter: blur(6px);
+    }
+
+    .crate-meta-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .crate-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text);
+      margin-bottom: 3px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .crate-artist {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     @media (max-width: 860px) {
@@ -604,8 +792,18 @@
         gap: 10px;
       }
 
-      .shelf-grid {
-        grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      .shelf-search {
+        min-width: 0;
+        width: 100%;
+      }
+
+      .crate-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 12px;
+      }
+
+      .crate-card {
+        padding: 10px 10px 12px;
       }
     }
   </style>
@@ -664,11 +862,20 @@
       <div class="quiz-layout">
         <div class="quiz-cover-box">
           <img class="quiz-cover-img blurred" id="quizCover" alt="盲猜封面" />
+          <div class="quiz-mystery-mask" id="quizMysteryMask">
+            <div class="quiz-mystery-vinyl" id="quizMysteryVinyl">
+              <span class="quiz-mystery-q">?</span>
+            </div>
+            <span class="quiz-mystery-label">BLIND LISTEN</span>
+          </div>
         </div>
 
         <div>
-          <div style="font-size:15px;font-weight:600;margin-bottom:6px;" id="quizPrompt">正在抽取今日谜题...</div>
-          <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;" id="quizHint">根据 30 秒前奏与模糊封面，选出对应的经典唱片</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
+            <div style="font-size:15px;font-weight:600;" id="quizPrompt">正在抽取今日谜题...</div>
+            <button class="btn btn-sm" id="btnQuizClue" style="display:none;padding:3px 9px;font-size:11.5px;">💡 显示提示</button>
+          </div>
+          <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;" id="quizHint">封面已隐藏 · 点击播放 30 秒前奏猜出对应唱片</div>
 
           <div class="now-playing-bar visible" id="quizPlayerBar" style="margin-bottom:12px;">
             <button class="btn btn-sm" id="btnQuizPlay">▶ 播放前奏</button>
@@ -777,25 +984,41 @@
       </div>
     </section>
 
-    <!-- 唱片架（近期 7 天 / 全部曲库） -->
-    <section class="card" id="shelfSection" style="margin-top:18px;display:none;">
-      <div class="card-header" style="margin-bottom:4px;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <span class="card-kicker">Vinyl Shelf · 唱片架</span>
-          <div class="qotd-tabs">
-            <button class="qotd-tab active" data-shelf-tab="recent">近期 7 天</button>
-            <button class="qotd-tab" data-shelf-tab="all" id="tabAllAlbums">全部曲库</button>
-          </div>
-        </div>
-        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);" id="shelfSummary">点击切换回听</span>
-      </div>
-      <div class="shelf-grid" id="shelfGrid"></div>
-    </section>
-
     <footer class="footer">
       <span>曲库位于 data/albums.json，随时可添加你私藏的经典专辑</span>
       <a href="../">← 返回工作台</a>
     </footer>
+  </div>
+
+  <!-- 唱片架滑出抽屉（近期 7 天 / 全部曲库 / 已听筛选 / 搜索） -->
+  <div class="drawer-backdrop" id="shelfDrawer" role="dialog" aria-modal="true" aria-label="唱片架">
+    <div class="drawer-panel vinyl-shelf-panel">
+      <div class="drawer-header">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="card-kicker">Vinyl Crate · 唱片架</span>
+          <span class="pill-badge" id="shelfSummary">已听 0 / 0</span>
+        </div>
+        <button class="btn btn-sm" id="btnCloseShelf">✕ 关闭</button>
+      </div>
+      <div class="drawer-body">
+        <div class="shelf-controls">
+          <div class="qotd-tabs" role="tablist" aria-label="唱片架筛选">
+            <button class="qotd-tab active" data-shelf-tab="recent">近期 7 天</button>
+            <button class="qotd-tab" data-shelf-tab="all" id="tabAllAlbums">全部曲库</button>
+            <button class="qotd-tab" data-shelf-tab="listened">✓ 已听</button>
+            <button class="qotd-tab" data-shelf-tab="unlistened">○ 未听</button>
+          </div>
+          <input
+            type="search"
+            class="shelf-search"
+            id="shelfSearchInput"
+            placeholder="搜索专辑、乐队、流派或年份..."
+            aria-label="搜索唱片架"
+          />
+        </div>
+        <div class="crate-grid" id="shelfGrid"></div>
+      </div>
+    </div>
   </div>
 
   <audio id="audioPlayer" preload="none"></audio>
