@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>今日一影 · Daily Film</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/icon.svg" />
+  <link rel="stylesheet" href="../assets/theme.css" />
+  <style>
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      transition: background 0.8s ease;
+    }
+
+    .film-layout {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    .poster-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 22px;
+      background: #141418;
+    }
+
+    .poster-kicker {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .poster-center-title {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #fff;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.65);
+      margin-bottom: 6px;
+    }
+
+    .poster-original {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.72);
+      line-height: 1.4;
+    }
+
+    .poster-footer {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.75);
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      padding-top: 10px;
+    }
+
+    .palette-box {
+      margin-top: 14px;
+    }
+
+    .palette-strip-lg {
+      display: flex;
+      gap: 6px;
+      height: 28px;
+      margin-top: 8px;
+    }
+
+    .palette-swatch-lg {
+      flex: 1;
+      border-radius: 7px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .palette-swatch-lg:hover {
+      transform: translateY(-2px);
+    }
+
+    .pill-badge {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+    }
+
+    .film-heading {
+      margin: 0 0 6px;
+      font-size: 32px;
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+    }
+
+    .film-sub {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: 18px;
+    }
+
+    .quote-box {
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 3px solid var(--film-accent, #6366f1);
+      font-style: italic;
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: #f4f4f5;
+      margin-bottom: 16px;
+    }
+
+    .film-review {
+      font-size: 14.5px;
+      line-height: 1.8;
+      color: #d4d4d8;
+      margin-bottom: 18px;
+    }
+
+    .personal-log-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      margin-top: 18px;
+    }
+
+    .btn-watched.active {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: rgba(16, 185, 129, 0.5);
+      color: #6ee7b7;
+    }
+
+    .star-rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .star-btn {
+      border: 0;
+      background: transparent;
+      padding: 2px 3px;
+      font-size: 16px;
+      line-height: 1;
+      color: var(--text-muted);
+    }
+
+    .star-btn.filled {
+      color: #fbbf24;
+    }
+
+    .note-input {
+      flex: 1;
+      min-width: 180px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 6px 10px;
+      color: var(--text);
+      font-size: 12.5px;
+      outline: none;
+    }
+
+    .shelf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .shelf-card {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      text-align: left;
+      transition: all 0.16s ease;
+    }
+
+    .shelf-card:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: var(--border-hover);
+    }
+
+    .shelf-card.selected {
+      border-color: var(--film-accent, #6366f1);
+      background: rgba(99, 102, 241, 0.12);
+    }
+
+    @media (max-width: 860px) {
+      .film-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .poster-frame {
+        max-width: 300px;
+        margin: 0 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow" id="ambientGlow"></div>
+
+  <div class="container">
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-icon" src="../assets/icon.svg" alt="DEV // HUB" />
+        <a class="brand-title" href="../">DEV // HUB</a>
+        <span class="brand-sub">今日一影 · Daily Film</span>
+      </div>
+
+      <nav class="nav-pills" aria-label="主导航">
+        <a class="nav-pill" href="../">工作台</a>
+        <a class="nav-pill" href="../tools/">工具箱</a>
+        <a class="nav-pill" href="../digest/">早报</a>
+        <a class="nav-pill" href="../vinyl/">一碟</a>
+        <a class="nav-pill active" href="./">一影</a>
+        <a class="nav-pill" href="../nba/">NBA</a>
+        <a class="nav-pill" href="../hana/">Hana</a>
+      </nav>
+
+      <div class="clock-box" title="上海时间 (Asia/Shanghai)">
+        <span id="clockDate">----.--.--</span>
+        <span class="clock-time" id="clockTime">--:--:--</span>
+      </div>
+    </header>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span class="pill-badge" id="dayBadge">今日推荐</span>
+        <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);" id="midnightCountdown">距离零点换片 --:--:--</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-sm" id="btnToday" style="display:none;">回到今日</button>
+        <button class="btn btn-sm" id="btnRandomFilm">🎲 随机片单</button>
+        <button class="btn btn-sm" id="btnToggleShelf">🎞️ 近期 / 全部片单</button>
+      </div>
+    </div>
+
+    <main class="card" style="padding:28px;">
+      <div class="film-layout">
+        <div>
+          <div class="poster-frame" id="posterFrame">
+            <div class="poster-kicker" id="posterKicker">DAILY CINEMA · #01</div>
+            <div>
+              <div class="poster-center-title" id="posterTitle">—</div>
+              <div class="poster-original" id="posterOriginal">—</div>
+            </div>
+            <div class="poster-footer">
+              <span id="posterDirector">—</span>
+              <span id="posterYearRuntime">—</span>
+            </div>
+          </div>
+
+          <div class="palette-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">
+              <span>FILM COLOR PALETTE</span>
+              <span id="paletteHint">点击色块复制 HEX</span>
+            </div>
+            <div class="palette-strip-lg" id="paletteStrip"></div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;" id="filmLinks"></div>
+        </div>
+
+        <div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+            <span class="pill-badge" id="filmYear">----</span>
+            <span class="pill-badge" id="filmCountry">—</span>
+            <span class="pill-badge" id="filmRuntime">—</span>
+            <span class="pill-badge" id="filmGenre">—</span>
+            <span class="pill-badge" id="filmRating" style="color:#fbbf24;">★ —</span>
+          </div>
+
+          <h1 class="film-heading" id="filmTitle">加载中...</h1>
+          <div class="film-sub" id="filmSub">—</div>
+
+          <div class="quote-box" id="filmQuote">“—”</div>
+          <p class="film-review" id="filmReview">正在从片库检索今日电影...</p>
+
+          <div class="tags" id="filmTags" style="padding-top:0;"></div>
+
+          <div class="personal-log-bar" aria-label="个人观影打卡">
+            <button class="btn btn-sm btn-watched" id="btnWatched">○ 标记看过</button>
+            <div class="star-rating" id="starRating" role="group" aria-label="电影评分">
+              <button class="star-btn" data-star="1">★</button>
+              <button class="star-btn" data-star="2">★</button>
+              <button class="star-btn" data-star="3">★</button>
+              <button class="star-btn" data-star="4">★</button>
+              <button class="star-btn" data-star="5">★</button>
+            </div>
+            <input
+              type="text"
+              class="note-input"
+              id="filmNoteInput"
+              maxlength="80"
+              placeholder="写一句观影短评（自动保存在本地）..."
+            />
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <section class="card" id="shelfSection" style="margin-top:18px;display:none;">
+      <div class="card-header" style="margin-bottom:4px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="card-kicker">Film Archive · 片单库</span>
+          <div class="qotd-tabs">
+            <button class="qotd-tab active" data-shelf-tab="recent">近期 7 天</button>
+            <button class="qotd-tab" data-shelf-tab="all" id="tabAllFilms">全部片库</button>
+          </div>
+        </div>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);" id="shelfSummary">点击切换</span>
+      </div>
+      <div class="shelf-grid" id="shelfGrid"></div>
+    </section>
+
+    <footer class="footer">
+      <span>片库位于 data/films.json，随时可增补你钟爱的佳片</span>
+      <a href="../">← 返回工作台</a>
+    </footer>
+  </div>
+
+  <script type="module" src="../assets/film.js"></script>
+</body>
+</html>

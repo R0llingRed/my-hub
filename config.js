@@ -1,6 +1,6 @@
 /**
  * 个人数字工作台配置文件
- * 部署自己的 IT-Tools / CyberChef 后，直接替换下方链接即可。
+ * 部署自己的 IT-Tools 后，直接替换下方链接即可。
  */
 export const SITE_CONFIG = {
   title: 'DEV // HUB',
@@ -19,15 +19,6 @@ export const SITE_CONFIG = {
       tags: ['JWT', 'Hash', 'JSON', 'CIDR', 'Regex'],
       shortcut: '1',
     },
-    cyberChef: {
-      name: 'CyberChef',
-      tagline: '安全与编解码流水线',
-      description: 'GCHQ 开源网络瑞士军刀，支持多步骤 Recipe 串联加解密、Magic 自动识别与证书解析。',
-      // 已内置到本地同源目录，也可改为任意自建地址
-      url: 'https://gchq.github.io/CyberChef/', // 瘦身版：改用 GCHQ 官方托管，站内不再自带 59MB
-      tags: ['Recipe', 'Base64', 'AES', 'Magic', 'X.509'],
-      shortcut: '2',
-    },
   },
 
   nba: {
@@ -35,6 +26,18 @@ export const SITE_CONFIG = {
     defaultFavoriteTeam: 'LAL',
     // Cloudflare Pages Functions 代理端点（本地开发无 Functions 时会自动降级直连 ESPN 公开接口）
     proxyEndpoint: '/api/nba',
+    summaryProxyEndpoint: '/api/nba-summary',
+    standingsProxyEndpoint: '/api/nba-standings',
+  },
+
+  digest: {
+    proxyEndpoint: '/api/digest',
+  },
+
+  hana: {
+    title: 'Hana // Muse',
+    subtitle: 'Muse 专属创作与实验空间',
+    path: './hana/',
   },
 
   // 可在首页底部的快捷链接栏添加其他常用地址

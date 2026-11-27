@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>极客早报 · DEV // HUB</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/icon.svg" />
+  <link rel="stylesheet" href="../assets/theme.css" />
+  <style>
+    .digest-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .filter-pill.active {
+      background: rgba(99, 102, 241, 0.22);
+      border-color: rgba(99, 102, 241, 0.55);
+      color: #e0e7ff;
+    }
+
+    .read-progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding: 12px 16px;
+    }
+
+    .read-bar-rail {
+      flex: 1;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .read-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #6366f1, #10b981);
+      transition: width 0.28s ease;
+    }
+
+    .digest-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .digest-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 15px 18px;
+      border-radius: 14px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      transition: all 0.16s ease;
+    }
+
+    .digest-row:hover {
+      border-color: var(--border-hover);
+      background: var(--bg-elevated-hover);
+      transform: translateY(-1px);
+    }
+
+    .digest-row.is-read {
+      opacity: 0.56;
+    }
+
+    .digest-main {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .digest-title {
+      font-size: 14.5px;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--text);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .digest-meta {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .btn-mark-read {
+      flex-shrink: 0;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
+    }
+
+    .btn-mark-read.done {
+      border-color: rgba(16, 185, 129, 0.45);
+      background: rgba(16, 185, 129, 0.14);
+      color: #6ee7b7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-icon" src="../assets/icon.svg" alt="DEV // HUB" />
+        <a class="brand-title" href="../">DEV // HUB</a>
+        <span class="brand-sub">极客早报 · 3 分钟信息降噪台</span>
+      </div>
+
+      <nav class="nav-pills" aria-label="主导航">
+        <a class="nav-pill" href="../">工作台</a>
+        <a class="nav-pill" href="../tools/">工具箱</a>
+        <a class="nav-pill active" href="./">早报</a>
+        <a class="nav-pill" href="../vinyl/">一碟</a>
+        <a class="nav-pill" href="../film/">一影</a>
+        <a class="nav-pill" href="../nba/">NBA</a>
+        <a class="nav-pill" href="../hana/">Hana</a>
+      </nav>
+
+      <div class="clock-box" title="上海时间 (Asia/Shanghai)">
+        <span id="clockDate">----.--.--</span>
+        <span class="clock-time" id="clockTime">--:--:--</span>
+      </div>
+    </header>
+
+    <div class="digest-toolbar">
+      <div class="filter-pills" id="filterPills" role="tablist" aria-label="数据源筛选">
+        <button class="btn btn-sm filter-pill active" data-source="all">全部精选</button>
+        <button class="btn btn-sm filter-pill" data-source="hn">Hacker News</button>
+        <button class="btn btn-sm filter-pill" data-source="github">GitHub 热门</button>
+        <button class="btn btn-sm filter-pill" data-source="v2ex">V2EX 热议</button>
+        <button class="btn btn-sm filter-pill" data-source="devto">DEV.to</button>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-sm" id="btnResetRead">清空已读</button>
+        <button class="btn btn-sm btn-primary" id="btnRefreshDigest">↻ 刷新早报</button>
+      </div>
+    </div>
+
+    <section class="card read-progress-wrap" aria-label="今日阅读进度">
+      <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);" id="digestDateLabel">预计阅读 3 分钟 · 信息降噪台</span>
+      <div class="read-bar-rail">
+        <div class="read-bar-fill" id="readBarFill"></div>
+      </div>
+      <span class="tag" id="readProgressBadge">已读 0 / 0</span>
+    </section>
+
+    <div id="digestNotice" style="display:none;font-size:12px;color:var(--text-muted);margin-bottom:12px;font-family:var(--font-mono);"></div>
+
+    <main class="digest-list" id="digestList">
+      <div class="card" style="text-align:center;padding:42px 20px;font-family:var(--font-mono);font-size:13px;color:var(--text-muted);">
+        正在聚合 HN / GitHub / V2EX / DEV.to 精选内容...
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span>无算法推荐 · 按源交错降噪 · 点击链接自动标记已读</span>
+      <a href="../">← 返回工作台</a>
+    </footer>
+  </div>
+
+  <script type="module" src="../assets/digest.js"></script>
+</body>
+</html>

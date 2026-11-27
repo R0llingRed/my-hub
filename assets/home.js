@@ -1,11 +1,14 @@
 import { SITE_CONFIG } from '../config.js';
 import {
   buildFallbackCover,
+  escapeHtml,
+  fetchGeekDigest,
   fetchItunesMetadata,
   fetchNbaScoreboardByShanghaiOffset,
   formatCountdown,
   formatShanghaiEventTime,
   getDailyAlbumIndex,
+  getDailyItemIndex,
   getShanghaiDate,
   startClock,
 } from './common.js';
@@ -20,38 +23,38 @@ startClock(
   document.getElementById('clockTime')
 );
 
-// 2. 渲染 IT-Tools & CyberChef 卡片
-function getToolHref(appKey, cfg) {
+// 2. 渲染 IT-Tools 卡片
+function getToolHref(cfg) {
   if (SITE_CONFIG.openToolsInWorkspace) {
-    return `./tools/?app=${appKey}`;
+    return './tools/';
   }
   return cfg.url;
 }
 
-function renderToolCard(prefix, appKey, cfg, cardId) {
-  const card = document.getElementById(cardId);
-  card.href = getToolHref(appKey, cfg);
-  if (SITE_CONFIG.openToolsInWorkspace) {
-    card.removeAttribute('target');
-    card.removeAttribute('rel');
+function renderItToolsCard() {
+  const cfg = SITE_CONFIG.tools.itTools;
+  const card = document.getElementById('cardItTools');
+  card.href = getToolHref(cfg);
+  if (!SITE_CONFIG.openToolsInWorkspace) {
+    card.target = '_blank';
+    card.rel = 'noopener noreferrer';
   }
-  document.getElementById(`${prefix}Name`).textContent = cfg.name;
-  document.getElementById(`${prefix}Desc`).textContent = cfg.description;
-  const tagsEl = document.getElementById(`${prefix}Tags`);
-  tagsEl.innerHTML = cfg.tags.map((t) => `<span class="tag">${t}</span>`).join('');
+  document.getElementById('itToolsName').textContent = cfg.name;
+  document.getElementById('itToolsDesc').textContent = cfg.description;
+  const tagsEl = document.getElementById('itToolsTags');
+  tagsEl.innerHTML = cfg.tags.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join('');
 }
 
-renderToolCard('itTools', 'it-tools', SITE_CONFIG.tools.itTools, 'cardItTools');
-renderToolCard('cyberChef', 'cyberchef', SITE_CONFIG.tools.cyberChef, 'cardCyberChef');
+renderItToolsCard();
 
 // 3. 渲染快捷链接
 const quickLinksEl = document.getElementById('quickLinks');
 quickLinksEl.innerHTML = SITE_CONFIG.extraLinks
   .map(
     (link) => `
-      <a class="quick-link" href="${link.url}" target="_blank" rel="noopener noreferrer">
-        <span>${link.name}</span>
-        <span style="color:var(--text-muted);font-size:12px;">${link.desc}</span>
+      <a class="quick-link" href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">
+        <span>${escapeHtml(link.name)}</span>
+        <span style="color:var(--text-muted);font-size:12px;">${escapeHtml(link.desc)}</span>
       </a>
     `
   )
@@ -78,17 +81,15 @@ async function initVinylWidget() {
       discEl.style.background = `radial-gradient(circle at center, #18181b 0 14%, ${album.accentColor} 14% 26%, #111 27% 100%)`;
     }
 
-    // 异步拉取高清专辑封面
     const meta = await fetchItunesMetadata(album);
     if (meta.artwork) {
       thumbEl.src = meta.artwork;
     }
-  } catch (err) {
+  } catch (_) {
     document.getElementById('vinylTitle').textContent = '今日一碟';
     document.getElementById('vinylSnippet').textContent = '点击进入完整黑胶唱片页';
   }
 
-  // 零点换碟倒计时
   const countdownEl = document.getElementById('vinylCountdown');
   const updateCountdown = () => {
     const sh = getShanghaiDate(0);
@@ -98,7 +99,167 @@ async function initVinylWidget() {
   setInterval(updateCountdown, 1000);
 }
 
-// 5. 加载 NBA 迷你预览（按上海时间当日赛程，最多 3 场，主队优先）
+// 5. 加载「今日一影」实时预览
+async function initFilmWidget() {
+  try {
+    const res = await fetch('./data/films.json');
+    const films = await res.json();
+    const idx = getDailyItemIndex(films.length, 0, 7);
+    const film = films[idx];
+
+    document.getElementById('filmTitle').textContent = film.title;
+    document.getElementById('filmMeta').textContent = `${film.director} · ${film.year} · ${film.genre}`;
+    document.getElementById('filmSnippet').textContent = film.review;
+    document.getElementById('filmRatingTag').textContent = `★ ${film.rating}`;
+
+    const paletteEl = document.getElementById('filmPalettePreview');
+    paletteEl.innerHTML = (film.palette || [])
+      .map((hex) => `<span class="palette-swatch" style="background:${escapeHtml(hex)};"></span>`)
+      .join('');
+  } catch (_) {
+    document.getElementById('filmTitle').textContent = '今日一影';
+    document.getElementById('filmSnippet').textContent = '点击进入完整电影卡片与色盘';
+  }
+
+  const countdownEl = document.getElementById('filmCountdown');
+  const updateCountdown = () => {
+    const sh = getShanghaiDate(0);
+    countdownEl.textContent = `换片 ${formatCountdown(sh.msUntilMidnight)}`;
+  };
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+}
+
+// 6. 加载「极客早报」预览（4 条）
+async function initDigestWidget() {
+  const listEl = document.getElementById('digestMiniList');
+  try {
+    const data = await fetchGeekDigest();
+    const top4 = (data.items || []).slice(0, 4);
+    if (!top4.length) throw new Error('empty');
+
+    listEl.innerHTML = top4
+      .map(
+        (item) => `
+          <div class="digest-mini-item">
+            <span class="source-badge source-${escapeHtml(item.source)}">${escapeHtml(item.sourceLabel)}</span>
+            <span class="digest-mini-title">${escapeHtml(item.title)}</span>
+            <span class="digest-mini-meta">${escapeHtml(item.meta)}</span>
+          </div>
+        `
+      )
+      .join('');
+  } catch (_) {
+    listEl.innerHTML = `
+      <div class="digest-mini-item">
+        <span class="digest-mini-title">点击进入「极客早报」查看 HN / GitHub / V2EX / DEV.to 精选</span>
+      </div>
+    `;
+  }
+}
+
+// 7. 首页内联「今日一词 / 每日一问」互动卡片
+async function initQotdWidget() {
+  const bodyEl = document.getElementById('homeQotdBody');
+  const tabTip = document.getElementById('homeTabTip');
+  const tabQ = document.getElementById('homeTabQ');
+  const btnRoll = document.getElementById('btnQotdRoll');
+
+  let data;
+  try {
+    const res = await fetch('./data/daily-bits.json');
+    data = await res.json();
+  } catch (_) {
+    bodyEl.innerHTML = `<div style="font-size:13px;color:var(--text-muted);">暂无法加载每日一词题库</div>`;
+    return;
+  }
+
+  let qMode = 'tip'; // 'tip' | 'question'
+  let tipIdx = getDailyItemIndex(data.tips.length, 0, 13);
+  let qIdx = getDailyItemIndex(data.questions.length, 0, 29);
+  let answerVisible = false;
+
+  function renderQotd() {
+    tabTip.classList.toggle('active', qMode === 'tip');
+    tabQ.classList.toggle('active', qMode === 'question');
+
+    if (qMode === 'tip') {
+      const tip = data.tips[tipIdx];
+      bodyEl.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
+          <strong style="font-size:15px;">${escapeHtml(tip.title)}</strong>
+          <span class="tag">${escapeHtml(tip.category)}</span>
+        </div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:6px;">${escapeHtml(tip.subtitle)}</div>
+        <pre class="qotd-code">${escapeHtml(tip.snippet)}</pre>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:8px;">
+          <span style="font-size:12px;color:var(--text-muted);flex:1;min-width:180px;">${escapeHtml(tip.takeaway)}</span>
+          <button class="btn btn-sm" id="btnCopyHomeTip">复制命令/片段</button>
+        </div>
+      `;
+      document.getElementById('btnCopyHomeTip').addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        try {
+          await navigator.clipboard.writeText(tip.snippet);
+          btn.textContent = '✓ 已复制';
+        } catch (_) {
+          btn.textContent = '复制失败';
+        }
+        setTimeout(() => {
+          btn.textContent = '复制命令/片段';
+        }, 1400);
+      });
+    } else {
+      const q = data.questions[qIdx];
+      bodyEl.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
+          <span class="tag">${escapeHtml(q.category)}</span>
+          <button class="btn btn-sm btn-primary" id="btnToggleHomeAnswer">${answerVisible ? '收起解析' : '查看参考解析'}</button>
+        </div>
+        <div style="font-size:14.5px;font-weight:500;line-height:1.55;margin-bottom:6px;">${escapeHtml(q.question)}</div>
+        <div style="font-size:12px;color:var(--text-muted);">提示：${escapeHtml(q.hint)}</div>
+        ${
+          answerVisible
+            ? `<div class="qotd-answer">${escapeHtml(q.answer)}</div>`
+            : ''
+        }
+      `;
+      document.getElementById('btnToggleHomeAnswer').addEventListener('click', () => {
+        answerVisible = !answerVisible;
+        renderQotd();
+      });
+    }
+  }
+
+  tabTip.addEventListener('click', () => {
+    qMode = 'tip';
+    renderQotd();
+  });
+
+  tabQ.addEventListener('click', () => {
+    qMode = 'question';
+    answerVisible = false;
+    renderQotd();
+  });
+
+  btnRoll.addEventListener('click', () => {
+    if (qMode === 'tip' && data.tips.length > 1) {
+      let next = tipIdx;
+      while (next === tipIdx) next = Math.floor(Math.random() * data.tips.length);
+      tipIdx = next;
+    } else if (qMode === 'question' && data.questions.length > 1) {
+      let next = qIdx;
+      while (next === qIdx) next = Math.floor(Math.random() * data.questions.length);
+      qIdx = next;
+      answerVisible = false;
+    }
+    renderQotd();
+  });
+
+  renderQotd();
+}
+
+// 8. 加载 NBA 迷你预览（按上海时间当日赛程，最多 3 场，主队优先）
 async function initNbaWidget() {
   const listEl = document.getElementById('nbaMiniList');
   const favTeam = localStorage.getItem('nba_fav_team') || SITE_CONFIG.nba.defaultFavoriteTeam;
@@ -112,13 +273,12 @@ async function initNbaWidget() {
       listEl.innerHTML = `
         <div class="nba-mini-game" style="grid-column:1 / -1;">
           <div class="nba-mini-status"><span>${sh.displayDate} (上海时间)</span><span>休赛日 / 暂无比赛</span></div>
-          <div class="nba-mini-row" style="color:var(--text-secondary);"><span>点击进入 NBA 看板查看昨日赛果与明日赛程</span><span>→</span></div>
+          <div class="nba-mini-row" style="color:var(--text-secondary);"><span>点击进入 NBA 看板查看昨日赛果、战绩榜与明日赛程</span><span>→</span></div>
         </div>
       `;
       return;
     }
 
-    // 主队置顶，进行中的比赛靠前
     events = [...events].sort((a, b) => {
       const aFav = isFavGame(a, favTeam) ? 1 : 0;
       const bFav = isFavGame(b, favTeam) ? 1 : 0;
@@ -137,7 +297,7 @@ async function initNbaWidget() {
         const state = ev.status?.type?.state;
         const statusText =
           state === 'in'
-            ? `<span class="live-badge">● LIVE ${ev.status?.type?.shortDetail || ''}</span>`
+            ? `<span class="live-badge">● LIVE ${escapeHtml(ev.status?.type?.shortDetail || '')}</span>`
             : state === 'post'
             ? '<span>已结束</span>'
             : `<span>${formatShanghaiEventTime(ev.date).hm} 上海</span>`;
@@ -145,16 +305,16 @@ async function initNbaWidget() {
         return `
           <div class="nba-mini-game">
             <div class="nba-mini-status">
-              <span>${favStar}${away?.team?.abbreviation || 'AWY'} @ ${home?.team?.abbreviation || 'HME'}</span>
+              <span>${favStar}${escapeHtml(away?.team?.abbreviation || 'AWY')} @ ${escapeHtml(home?.team?.abbreviation || 'HME')}</span>
               ${statusText}
             </div>
             <div class="nba-mini-row">
-              <span>${away?.team?.shortDisplayName || away?.team?.abbreviation || '-'}</span>
-              <strong>${state === 'pre' ? '-' : away?.score ?? '-'}</strong>
+              <span>${escapeHtml(away?.team?.shortDisplayName || away?.team?.abbreviation || '-')}</span>
+              <strong>${state === 'pre' ? '-' : escapeHtml(away?.score ?? '-')}</strong>
             </div>
             <div class="nba-mini-row">
-              <span>${home?.team?.shortDisplayName || home?.team?.abbreviation || '-'}</span>
-              <strong>${state === 'pre' ? '-' : home?.score ?? '-'}</strong>
+              <span>${escapeHtml(home?.team?.shortDisplayName || home?.team?.abbreviation || '-')}</span>
+              <strong>${state === 'pre' ? '-' : escapeHtml(home?.score ?? '-')}</strong>
             </div>
           </div>
         `;
@@ -164,7 +324,7 @@ async function initNbaWidget() {
     listEl.innerHTML = `
       <div class="nba-mini-game" style="grid-column:1 / -1;">
         <div class="nba-mini-status"><span>NBA 看板</span><span>点击查看完整赛程</span></div>
-        <div class="nba-mini-row" style="color:var(--text-secondary);"><span>实时比分、上海时间换算与 YouTube 集锦聚合</span><span>→</span></div>
+        <div class="nba-mini-row" style="color:var(--text-secondary);"><span>实时比分、站内 Box Score 与东西部战绩榜</span><span>→</span></div>
       </div>
     `;
   }
@@ -176,7 +336,7 @@ function isFavGame(ev, favAbbr) {
   return comps.some((c) => c.team?.abbreviation === favAbbr);
 }
 
-// 6. 本地草稿便签（localStorage）
+// 9. 本地草稿便签（localStorage）
 const scratchEl = document.getElementById('scratchpad');
 const scratchStatus = document.getElementById('scratchStatus');
 const SCRATCH_KEY = 'dev_hub_scratchpad_v1';
@@ -199,29 +359,32 @@ scratchEl.addEventListener('input', () => {
   }, 260);
 });
 
-// 7. 键盘快捷键 (1 / 2 / 3 / 4)
+// 10. 键盘快捷键 (1 - 6)
 document.addEventListener('keydown', (e) => {
   const tag = (e.target?.tagName || '').toLowerCase();
   if (tag === 'input' || tag === 'textarea' || e.metaKey || e.ctrlKey || e.altKey) return;
 
   if (e.key === '1') {
     if (SITE_CONFIG.openToolsInWorkspace) {
-      window.location.href = './tools/?app=it-tools';
+      window.location.href = './tools/';
     } else {
       window.open(SITE_CONFIG.tools.itTools.url, '_blank', 'noopener,noreferrer');
     }
   } else if (e.key === '2') {
-    if (SITE_CONFIG.openToolsInWorkspace) {
-      window.location.href = './tools/?app=cyberchef';
-    } else {
-      window.open(SITE_CONFIG.tools.cyberChef.url, '_blank', 'noopener,noreferrer');
-    }
-  } else if (e.key === '3') {
     window.location.href = './vinyl/';
+  } else if (e.key === '3') {
+    window.location.href = './film/';
   } else if (e.key === '4') {
+    window.location.href = './digest/';
+  } else if (e.key === '5') {
     window.location.href = './nba/';
+  } else if (e.key === '6') {
+    window.location.href = './hana/';
   }
 });
 
 initVinylWidget();
+initFilmWidget();
+initDigestWidget();
+initQotdWidget();
 initNbaWidget();

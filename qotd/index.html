@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>今日一词 / 每日一问 · DEV // HUB</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/icon.svg" />
+  <link rel="stylesheet" href="../assets/theme.css" />
+  <style>
+    .qotd-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .search-input {
+      background: rgba(24, 24, 27, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 7px 12px;
+      color: var(--text);
+      font-size: 13px;
+      min-width: 220px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: rgba(99, 102, 241, 0.55);
+    }
+
+    .cat-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .cat-chip.active {
+      background: rgba(99, 102, 241, 0.22);
+      border-color: rgba(99, 102, 241, 0.55);
+      color: #e0e7ff;
+    }
+
+    .archive-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
+      gap: 14px;
+    }
+
+    .featured-card {
+      margin-bottom: 20px;
+      border-color: rgba(99, 102, 241, 0.42);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.12), transparent 55%),
+        var(--bg-elevated);
+    }
+
+    .btn-bookmark.active {
+      color: #fbbf24;
+      border-color: rgba(251, 191, 36, 0.45);
+      background: rgba(251, 191, 36, 0.12);
+    }
+
+    @media (max-width: 720px) {
+      .archive-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-icon" src="../assets/icon.svg" alt="DEV // HUB" />
+        <a class="brand-title" href="../">DEV // HUB</a>
+        <span class="brand-sub">今日一词 &amp; 每日一问</span>
+      </div>
+
+      <nav class="nav-pills" aria-label="主导航">
+        <a class="nav-pill" href="../">工作台</a>
+        <a class="nav-pill" href="../tools/">工具箱</a>
+        <a class="nav-pill" href="../digest/">早报</a>
+        <a class="nav-pill" href="../vinyl/">一碟</a>
+        <a class="nav-pill" href="../film/">一影</a>
+        <a class="nav-pill" href="../nba/">NBA</a>
+        <a class="nav-pill" href="../hana/">Hana</a>
+      </nav>
+
+      <div class="clock-box" title="上海时间 (Asia/Shanghai)">
+        <span id="clockDate">----.--.--</span>
+        <span class="clock-time" id="clockTime">--:--:--</span>
+      </div>
+    </header>
+
+    <div class="qotd-toolbar">
+      <div class="qotd-tabs" style="padding:4px;" role="tablist">
+        <button class="qotd-tab active" data-mode="tips">⚡ 今日一技 / 概念</button>
+        <button class="qotd-tab" data-mode="questions">🧠 每日一问</button>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-sm" id="btnOnlyBookmarked">★ 仅看收藏</button>
+        <input type="search" class="search-input" id="searchInput" placeholder="搜索命令、概念或面试题..." />
+      </div>
+    </div>
+
+    <div class="cat-chips" id="catChips"></div>
+
+    <section class="card featured-card" id="featuredCard"></section>
+
+    <main class="archive-grid" id="archiveGrid"></main>
+
+    <footer class="footer">
+      <span>题库位于 data/daily-bits.json · 收藏状态保存在浏览器本地</span>
+      <a href="../">← 返回工作台</a>
+    </footer>
+  </div>
+
+  <script type="module" src="../assets/qotd.js"></script>
+</body>
+</html>

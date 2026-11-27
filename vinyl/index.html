@@ -116,7 +116,7 @@
     .album-artist {
       font-size: 17px;
       color: var(--text-secondary);
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .review-box {
@@ -127,7 +127,66 @@
       font-size: 14.5px;
       line-height: 1.75;
       color: #d4d4d8;
-      margin-bottom: 22px;
+      margin-bottom: 16px;
+    }
+
+    /* Personal Log Bar */
+    .personal-log-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      margin-bottom: 18px;
+    }
+
+    .btn-listened.active {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: rgba(16, 185, 129, 0.5);
+      color: #6ee7b7;
+    }
+
+    .star-rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .star-btn {
+      border: 0;
+      background: transparent;
+      padding: 2px 3px;
+      font-size: 16px;
+      line-height: 1;
+      color: var(--text-muted);
+      transition: transform 0.12s ease, color 0.12s ease;
+    }
+
+    .star-btn:hover {
+      transform: scale(1.18);
+    }
+
+    .star-btn.filled {
+      color: #fbbf24;
+    }
+
+    .note-input {
+      flex: 1;
+      min-width: 180px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 6px 10px;
+      color: var(--text);
+      font-size: 12.5px;
+      outline: none;
+    }
+
+    .note-input:focus {
+      border-color: var(--vinyl-accent, #6366f1);
     }
 
     .now-playing-bar {
@@ -274,9 +333,112 @@
       margin-top: 16px;
     }
 
+    /* Focus Room Bar */
+    .focus-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 18px;
+      padding: 16px 22px;
+    }
+
+    .focus-group {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn-ambient.active {
+      background: rgba(245, 158, 11, 0.18);
+      border-color: rgba(245, 158, 11, 0.55);
+      color: #fde68a;
+    }
+
+    .pomo-display {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      min-width: 64px;
+      text-align: center;
+      color: var(--text);
+    }
+
+    /* Blind Guess Quiz Panel */
+    .quiz-panel {
+      margin-bottom: 18px;
+      padding: 24px;
+      border-color: rgba(99, 102, 241, 0.32);
+    }
+
+    .quiz-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 24px;
+      align-items: center;
+    }
+
+    .quiz-cover-box {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: #18181b;
+      flex-shrink: 0;
+    }
+
+    .quiz-cover-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: filter 0.45s ease, transform 0.45s ease;
+    }
+
+    .quiz-cover-img.blurred {
+      filter: blur(22px) scale(1.1);
+    }
+
+    .quiz-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .quiz-opt {
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: left;
+      transition: all 0.16s ease;
+    }
+
+    .quiz-opt:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-hover);
+    }
+
+    .quiz-opt.correct {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: rgba(16, 185, 129, 0.65);
+      color: #6ee7b7;
+    }
+
+    .quiz-opt.wrong {
+      background: rgba(244, 63, 94, 0.16);
+      border-color: rgba(244, 63, 94, 0.55);
+      color: #fda4af;
+    }
+
     .shelf-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
       gap: 12px;
       margin-top: 14px;
     }
@@ -301,7 +463,12 @@
     }
 
     @media (max-width: 860px) {
-      .vinyl-layout {
+      .vinyl-layout,
+      .quiz-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .quiz-options {
         grid-template-columns: 1fr;
       }
 
@@ -336,9 +503,12 @@
 
       <nav class="nav-pills" aria-label="主导航">
         <a class="nav-pill" href="../">工作台</a>
-        <a class="nav-pill" href="../tools/?app=it-tools">工具箱</a>
-        <a class="nav-pill active" href="./">今日一碟</a>
-        <a class="nav-pill" href="../nba/">NBA 看板</a>
+        <a class="nav-pill" href="../tools/">工具箱</a>
+        <a class="nav-pill" href="../digest/">早报</a>
+        <a class="nav-pill active" href="./">一碟</a>
+        <a class="nav-pill" href="../film/">一影</a>
+        <a class="nav-pill" href="../nba/">NBA</a>
+        <a class="nav-pill" href="../hana/">Hana</a>
       </nav>
 
       <div class="clock-box">
@@ -352,12 +522,53 @@
         <span class="pill-badge" id="dayBadge">今日推荐</span>
         <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);" id="midnightCountdown">距离零点换碟 --:--:--</span>
       </div>
-      <div style="display:flex;gap:8px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-sm" id="btnToday" style="display:none;">回到今日</button>
         <button class="btn btn-sm" id="btnRandom">🎲 随机盲抽</button>
-        <button class="btn btn-sm" id="btnToggleShelf">📚 近期唱片架</button>
+        <button class="btn btn-sm" id="btnToggleQuiz">🎧 盲听猜碟</button>
+        <button class="btn btn-sm" id="btnExportPoster">🖼️ 导出日签</button>
+        <button class="btn btn-sm" id="btnToggleShelf">📚 唱片架</button>
       </div>
     </div>
+
+    <!-- 盲听猜碟小游戏面板 -->
+    <section class="card quiz-panel" id="quizPanel" style="display:none;" aria-label="盲听猜碟挑战">
+      <div class="card-header" style="margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="card-kicker">🎧 Blind Vinyl Quiz · 盲听猜碟</span>
+          <span class="pill-badge" id="quizStreakBadge">连胜 0 · 最高 0</span>
+        </div>
+        <button class="btn btn-sm" id="btnCloseQuiz">收起</button>
+      </div>
+
+      <div class="quiz-layout">
+        <div class="quiz-cover-box">
+          <img class="quiz-cover-img blurred" id="quizCover" alt="盲猜封面" />
+        </div>
+
+        <div>
+          <div style="font-size:15px;font-weight:600;margin-bottom:6px;" id="quizPrompt">正在抽取今日谜题...</div>
+          <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;" id="quizHint">根据 30 秒前奏与模糊封面，选出对应的经典唱片</div>
+
+          <div class="now-playing-bar visible" id="quizPlayerBar" style="margin-bottom:12px;">
+            <button class="btn btn-sm" id="btnQuizPlay">▶ 播放前奏</button>
+            <div class="progress-track" id="quizProgressTrack">
+              <div class="progress-rail">
+                <div class="progress-fill" id="quizProgressFill"></div>
+              </div>
+            </div>
+            <span id="quizTimeLabel" style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);min-width:48px;text-align:right;">0:00</span>
+          </div>
+
+          <div class="quiz-options" id="quizOptions"></div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:14px;">
+            <span id="quizResultText" style="font-size:13px;color:var(--text-secondary);"></span>
+            <button class="btn btn-sm btn-primary" id="btnNextQuiz" style="display:none;">下一题 →</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <main class="card" style="padding:28px;">
       <div class="vinyl-layout">
@@ -387,6 +598,25 @@
 
           <div class="review-box" id="albumReview">正在从唱片架取出今天的经典摇滚专辑...</div>
 
+          <!-- 个人听过打卡 & 评分 & 一句话短评 -->
+          <div class="personal-log-bar" aria-label="个人听歌记录">
+            <button class="btn btn-sm btn-listened" id="btnListened">○ 标记已听</button>
+            <div class="star-rating" id="starRating" role="group" aria-label="专辑评分">
+              <button class="star-btn" data-star="1" title="1 星">★</button>
+              <button class="star-btn" data-star="2" title="2 星">★</button>
+              <button class="star-btn" data-star="3" title="3 星">★</button>
+              <button class="star-btn" data-star="4" title="4 星">★</button>
+              <button class="star-btn" data-star="5" title="5 星">★</button>
+            </div>
+            <input
+              type="text"
+              class="note-input"
+              id="albumNoteInput"
+              maxlength="80"
+              placeholder="记一句私藏听后感（自动存入本地，可随日签导出）..."
+            />
+          </div>
+
           <div class="now-playing-bar" id="nowPlayingBar">
             <button class="btn btn-sm" id="btnPlayPause">⏸ 暂停</button>
             <span id="nowPlayingTitle" style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">—</span>
@@ -410,11 +640,34 @@
       </div>
     </main>
 
-    <!-- 近期 7 天唱片架 -->
+    <!-- 专注唱机栏：Web Audio 黑胶底噪 / 雨声 + 极简番茄钟 -->
+    <section class="card focus-bar" aria-label="专注唱机与番茄钟">
+      <div class="focus-group">
+        <span class="card-kicker" style="margin-right:4px;">Focus Room · 合成氛围音</span>
+        <button class="btn btn-sm btn-ambient" id="btnVinylNoise">📻 黑胶底噪</button>
+        <button class="btn btn-sm btn-ambient" id="btnRainNoise">🌧️ 深夜雨声</button>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);" id="ambientStatus">纯 Web Audio 合成 · 零流量</span>
+      </div>
+
+      <div class="focus-group">
+        <button class="btn btn-sm" id="btnPomoMode">🍅 专注 25m</button>
+        <span class="pomo-display" id="pomoDisplay">25:00</span>
+        <button class="btn btn-sm btn-primary" id="btnPomoToggle">开始</button>
+        <button class="btn btn-sm" id="btnPomoReset">重置</button>
+      </div>
+    </section>
+
+    <!-- 唱片架（近期 7 天 / 全部曲库） -->
     <section class="card" id="shelfSection" style="margin-top:18px;display:none;">
-      <div class="card-header" style="margin-bottom:4px;">
-        <span class="card-kicker">Recent 7 Days · 近期唱片架</span>
-        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">点击可切换回听</span>
+      <div class="card-header" style="margin-bottom:4px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="card-kicker">Vinyl Shelf · 唱片架</span>
+          <div class="qotd-tabs">
+            <button class="qotd-tab active" data-shelf-tab="recent">近期 7 天</button>
+            <button class="qotd-tab" data-shelf-tab="all" id="tabAllAlbums">全部曲库</button>
+          </div>
+        </div>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);" id="shelfSummary">点击切换回听</span>
       </div>
       <div class="shelf-grid" id="shelfGrid"></div>
     </section>
@@ -426,6 +679,7 @@
   </div>
 
   <audio id="audioPlayer" preload="none"></audio>
+  <audio id="quizAudio" preload="none"></audio>
   <script type="module" src="../assets/vinyl.js"></script>
 </body>
 </html>

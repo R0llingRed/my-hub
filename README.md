@@ -1,13 +1,17 @@
 # DEV // HUB — 个人数字工作台
 
-极简深色极客风（Linear / Vercel 质感）个人导航与趣味小站，纯静态前端零构建步骤，开箱即用。
+极简深色极客风（Linear / Vercel 质感）个人导航与趣味小站，纯静态前端零构建步骤，开箱即用，原生适配 Cloudflare Pages + Pages Functions。
 
 ## 包含模块
 
-- **首页工作台 (`/`)**：Bento 卡片布局，聚合 IT-Tools、CyberChef、「今日一碟」实时预览、NBA 今日焦点、本地暂存便签与常用直达链接；支持键盘快捷键 `1`–`4` 秒切。
-- **站内工具箱 (`/tools/`)**：内置同源静态版 **IT-Tools** (`/apps/it-tools/`) 与 **CyberChef v11.6.0** (`/apps/cyberchef/`)，顶部导航栏与主站保持完全一致，支持一键切换与宽屏模式，无需跳出当前域名。
-- **今日一碟 (`/vinyl/`)**：每天上海时间 `00:00` 自动切换一张经典摇滚专辑，带黑胶旋转动效、专辑主色光晕、短评、完整曲目表、可拖拽进度条的 iTunes 30 秒原声试听、近期 7 天唱片架与随机盲抽。
-- **NBA 看板 (`/nba/`)**：按上海时间（`Asia/Shanghai`）精准归类的昨/今/明三日赛程、智能自动刷新、主队置顶、防剧透模式、得分领跑者与 YouTube 官方集锦直达。
+- **首页工作台 (`/`)**：Bento 卡片布局，聚合 IT-Tools、今日一碟、今日一影、3 分钟极客早报、今日一词/每日一问交互卡、NBA 今日焦点、Hana // Muse 预留区、本地暂存便签与常用直达链接；支持键盘快捷键 `1`–`6` 秒切。
+- **站内工具箱 (`/tools/`)**：内置同源静态版 **IT-Tools** (`/apps/it-tools/`)，顶部导航栏与主站保持完全一致，支持宽屏模式，无需跳出当前域名。
+- **极客早报 (`/digest/`)**：3 分钟信息降噪台，聚合 Hacker News、GitHub 近期热门仓库、V2EX 热议与 DEV.to 精选（由 `functions/api/digest.js` 提供边缘缓存代理），支持按源筛选与本地已读进度条。
+- **今日一碟 (`/vinyl/`)**：每天上海时间 `00:00` 自动切换一张经典摇滚专辑，带黑胶旋转动效、iTunes 30 秒原声试听、**盲听猜碟挑战**、**Web Audio 黑胶底噪 / 深夜雨声 + 番茄钟**、**个人听歌打卡与评分**、全部曲库唱片架以及 **PNG 日签海报导出**。
+- **今日一影 (`/film/`)**：每天零点切换一部影史佳作，包含风格化文字海报、**5 色电影色盘（点击复制 HEX）**、经典台词、短评、豆瓣/IMDb/Letterboxd 直达与个人观影打卡评分。
+- **今日一词 / 每日一问 (`/qotd/`)**：精选 Linux / 网络 / Git 命令速记、分布式/安全核心概念与系统设计思考题，支持分类筛选、关键词搜索与本地收藏。
+- **NBA 看板 (`/nba/`)**：按上海时间（`Asia/Shanghai`）精准归类的昨/今/明三日赛程、智能自动刷新、主队置顶、防剧透模式、**站内完整 Box Score 抽屉**（`functions/api/nba-summary.js`）以及 **东西部实时战绩榜**（`functions/api/nba-standings.js`）。
+- **Hana 空间 (`/hana/`)**：为 Muse 预留的独立创作与实验自留地，可自由接管与发挥。
 
 ## 本地预览
 
@@ -17,17 +21,18 @@
 python3 -m http.server 8788
 ```
 
-然后浏览器打开 `http://localhost:8788`。
+然后浏览器打开 `http://localhost:8788`（本地静态模式下没有 Cloudflare Pages Functions，NBA 接口与支持 CORS 的早报数据源会自动降级直连）。
 
 ## 自定义配置
 
-1. **替换自建 IT-Tools / CyberChef 链接**：编辑 `config.js` 中的 `tools.itTools.url` 和 `tools.cyberChef.url`。
-2. **扩充「今日一碟」曲库**：编辑 `data/albums.json`，按相同格式追加专辑即可。
+1. **替换自建 IT-Tools 链接**：编辑 `config.js` 中的 `tools.itTools.url`。
+2. **扩充曲库 / 片库 / 题库**：分别编辑 `data/albums.json`、`data/films.json` 与 `data/daily-bits.json`，按相同格式追加即可。
+3. **接管 `/hana/`**：直接编辑 `hana/index.html` 或将独立子应用放入 `hana/` 目录。
 
-## 部署到 Cloudflare Pages 并绑定 hidns 子域名
+## 部署到 Cloudflare Pages
 
 1. 将本目录推送到你的 GitHub 仓库。
 2. 登录 Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → 关联该仓库。
 3. **Build command** 留空，**Build output directory** 填 `.`（根目录），点击部署。
-   - `functions/api/nba.js` 会自动作为 Cloudflare Pages Functions 生效。
-4. 部署完成后进入项目的 **Custom domains**，添加你的 `hidns` 子域名，按 Cloudflare 提示在 hidns 后台添加对应的 `CNAME` 记录即可。
+   - `functions/api/nba.js`、`nba-summary.js`、`nba-standings.js` 与 `digest.js` 会自动作为 Cloudflare Pages Functions 生效。
+4. 部署完成后进入项目的 **Custom domains**，添加你的域名并按提示配置 `CNAME` 记录即可。

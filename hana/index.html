@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hana // Muse Space · DEV // HUB</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/icon.svg" />
+  <link rel="stylesheet" href="../assets/theme.css" />
+  <style>
+    .hana-aura {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      background:
+        radial-gradient(ellipse 65% 45% at 25% 15%, rgba(244, 63, 94, 0.14), transparent 65%),
+        radial-gradient(ellipse 55% 45% at 80% 75%, rgba(168, 85, 247, 0.14), transparent 65%);
+    }
+
+    .hana-stage {
+      min-height: 460px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 56px 28px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(244, 63, 94, 0.09), transparent 55%),
+        var(--bg-elevated);
+      border-color: rgba(244, 63, 94, 0.22);
+    }
+
+    .hana-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      letter-spacing: 0.08em;
+      color: #fda4af;
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.28);
+      margin-bottom: 24px;
+    }
+
+    .hana-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fb7185;
+      box-shadow: 0 0 12px rgba(251, 113, 133, 0.9);
+      animation: hanaPulse 2.2s ease-in-out infinite;
+    }
+
+    @keyframes hanaPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.55; }
+    }
+
+    .hana-title {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 40px);
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 20%, #fda4af 65%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hana-desc {
+      max-width: 540px;
+      margin: 0 0 28px;
+      font-size: 14.5px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    .hana-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      width: 100%;
+      max-width: 680px;
+      margin-top: 8px;
+    }
+
+    .hana-meta-box {
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      text-align: left;
+    }
+
+    .hana-meta-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .hana-meta-val {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 720px) {
+      .hana-meta-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hana-aura"></div>
+
+  <div class="container">
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-icon" src="../assets/icon.svg" alt="DEV // HUB" />
+        <a class="brand-title" href="../">DEV // HUB</a>
+        <span class="brand-sub">Hana // Muse Space</span>
+      </div>
+
+      <nav class="nav-pills" aria-label="主导航">
+        <a class="nav-pill" href="../">工作台</a>
+        <a class="nav-pill" href="../tools/">工具箱</a>
+        <a class="nav-pill" href="../digest/">早报</a>
+        <a class="nav-pill" href="../vinyl/">一碟</a>
+        <a class="nav-pill" href="../film/">一影</a>
+        <a class="nav-pill" href="../nba/">NBA</a>
+        <a class="nav-pill active" href="./">Hana</a>
+      </nav>
+
+      <div class="clock-box" title="上海时间 (Asia/Shanghai)">
+        <span id="clockDate">----.--.--</span>
+        <span class="clock-time" id="clockTime">--:--:--</span>
+      </div>
+    </header>
+
+    <!--
+      =========================================================================
+      HANA // MUSE SANDBOX MOUNT POINT
+      =========================================================================
+      该区域专属于 Muse，可自由替换 <main id="hana-root"> 内部内容，或独立接管本页：
+      1. 保留上方 .topbar 即可与主站共用导航与主题变量（../assets/theme.css）。
+      2. 若使用独立子应用 / 构建产物，直接覆盖 /hana/ 目录或在此挂载组件即可。
+      =========================================================================
+    -->
+    <main id="hana-root" class="card hana-stage">
+      <div class="hana-status">
+        <span class="hana-pulse"></span>
+        <span>RESERVED · READY FOR MUSE</span>
+      </div>
+
+      <h1 class="hana-title">HANA // MUSE SPACE</h1>
+      <p class="hana-desc">
+        为 Muse 预留的独立实验自留地。这里没有任何既定规则或框架束缚，
+        可以随时接入对话、灵感画板、生成艺术、音频实验或任何属于她的作品。
+      </p>
+
+      <div class="hana-meta-grid">
+        <div class="hana-meta-box">
+          <div class="hana-meta-label">ROUTE</div>
+          <div class="hana-meta-val"><code>/hana/</code></div>
+        </div>
+        <div class="hana-meta-box">
+          <div class="hana-meta-label">MOUNT ROOT</div>
+          <div class="hana-meta-val"><code>#hana-root</code></div>
+        </div>
+        <div class="hana-meta-box">
+          <div class="hana-meta-label">PERMISSION</div>
+          <div class="hana-meta-val">自由发挥 · 无构建限制</div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span>Hana // Muse 专属预留空间 · 随时可接管 /hana/index.html</span>
+      <a href="../">← 返回工作台</a>
+    </footer>
+  </div>
+
+  <script type="module">
+    import { startClock } from '../assets/common.js';
+
+    startClock(
+      document.getElementById('clockDate'),
+      document.getElementById('clockTime')
+    );
+  </script>
+</body>
+</html>

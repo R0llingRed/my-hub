@@ -16,38 +16,17 @@
       margin-bottom: 16px;
     }
 
-    .tool-seg {
-      display: inline-flex;
-      gap: 6px;
-      padding: 4px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border);
-    }
-
-    .tool-tab {
+    .tool-title-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       padding: 6px 14px;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 13px;
-      border: 1px solid transparent;
-      background: transparent;
-      color: var(--text-secondary);
-      transition: all 0.16s ease;
-    }
-
-    .tool-tab:hover {
-      color: var(--text);
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .tool-tab.active {
-      color: #e0e7ff;
-      background: rgba(99, 102, 241, 0.22);
-      border-color: rgba(99, 102, 241, 0.55);
       font-weight: 500;
+      color: #e0e7ff;
+      background: rgba(99, 102, 241, 0.16);
+      border: 1px solid rgba(99, 102, 241, 0.38);
     }
 
     .frame-card {
@@ -98,14 +77,17 @@
       <div class="brand">
         <img class="brand-icon" src="../assets/icon.svg" alt="DEV // HUB" />
         <a class="brand-title" href="../">DEV // HUB</a>
-        <span class="brand-sub">开发与安全工具箱</span>
+        <span class="brand-sub">开发者工具箱</span>
       </div>
 
       <nav class="nav-pills" aria-label="主导航">
         <a class="nav-pill" href="../">工作台</a>
-        <a class="nav-pill active" href="./?app=it-tools">工具箱</a>
-        <a class="nav-pill" href="../vinyl/">今日一碟</a>
-        <a class="nav-pill" href="../nba/">NBA 看板</a>
+        <a class="nav-pill active" href="./">工具箱</a>
+        <a class="nav-pill" href="../digest/">早报</a>
+        <a class="nav-pill" href="../vinyl/">一碟</a>
+        <a class="nav-pill" href="../film/">一影</a>
+        <a class="nav-pill" href="../nba/">NBA</a>
+        <a class="nav-pill" href="../hana/">Hana</a>
       </nav>
 
       <div class="clock-box" title="上海时间 (Asia/Shanghai)">
@@ -115,9 +97,9 @@
     </header>
 
     <div class="tools-toolbar">
-      <div class="tool-seg" role="tablist" aria-label="工具切换">
-        <button class="tool-tab" id="tabItTools" data-app="it-tools">⌘ IT-Tools</button>
-        <button class="tool-tab" id="tabCyberChef" data-app="cyberchef">❖ CyberChef</button>
+      <div class="tool-title-badge">
+        <span style="color:#818cf8;">⌘</span>
+        <span id="toolHeading">IT-Tools · 开发者日常瑞士军刀</span>
       </div>
 
       <div style="display:flex;align-items:center;gap:8px;">
@@ -130,7 +112,7 @@
       <iframe
         id="toolFrame"
         class="tool-frame"
-        title="站内工具工作区"
+        title="IT-Tools 工作区"
         allow="clipboard-read; clipboard-write"
       ></iframe>
 
@@ -157,29 +139,29 @@
       document.getElementById('clockTime')
     );
 
-    const APPS = {
-      'it-tools': {
-        name: SITE_CONFIG.tools.itTools.name,
-        url: resolveToolUrl(SITE_CONFIG.tools.itTools.url),
-      },
-      cyberchef: {
-        name: SITE_CONFIG.tools.cyberChef.name,
-        url: resolveToolUrl(SITE_CONFIG.tools.cyberChef.url),
-      },
-    };
-
     function resolveToolUrl(rawUrl) {
       if (/^https?:\/\//i.test(rawUrl) || rawUrl.startsWith('/')) {
         return rawUrl;
       }
-      // 相对根目录路径（如 ./apps/it-tools/）在 /tools/ 下需要回退一级
       return rawUrl.startsWith('./') ? `../${rawUrl.slice(2)}` : `../${rawUrl}`;
     }
 
+    const itTools = SITE_CONFIG.tools.itTools;
+    const toolUrl = resolveToolUrl(itTools.url);
     const frame = document.getElementById('toolFrame');
     const btnExternal = document.getElementById('btnExternal');
     const btnWideMode = document.getElementById('btnWideMode');
     const frameTip = document.getElementById('frameTip');
+
+    document.getElementById('toolHeading').textContent = `${itTools.name} · ${itTools.tagline}`;
+    document.title = `${itTools.name} · DEV // HUB`;
+    frame.src = toolUrl;
+    btnExternal.href = toolUrl;
+
+    const isExternal = /^https?:\/\//i.test(toolUrl);
+    if (isExternal && localStorage.getItem('workspace_tip_dismissed') !== '1') {
+      frameTip.style.display = 'flex';
+    }
 
     // 宽屏模式记忆
     if (localStorage.getItem('tools_wide_mode') === '1') {
@@ -197,36 +179,6 @@
       frameTip.style.display = 'none';
       localStorage.setItem('workspace_tip_dismissed', '1');
     });
-
-    function selectApp(appKey) {
-      const key = APPS[appKey] ? appKey : 'it-tools';
-      const app = APPS[key];
-      frame.src = app.url;
-      btnExternal.href = app.url;
-      document.title = `${app.name} · DEV // HUB`;
-
-      // 仅外链站点时提示一次
-      const isExternal = /^https?:\/\//i.test(app.url);
-      frameTip.style.display =
-        isExternal && localStorage.getItem('workspace_tip_dismissed') !== '1'
-          ? 'flex'
-          : 'none';
-
-      document.querySelectorAll('.tool-tab').forEach((btn) => {
-        btn.classList.toggle('active', btn.dataset.app === key);
-      });
-
-      const url = new URL(window.location.href);
-      url.searchParams.set('app', key);
-      window.history.replaceState({}, '', url);
-    }
-
-    document.querySelectorAll('.tool-tab').forEach((btn) => {
-      btn.addEventListener('click', () => selectApp(btn.dataset.app));
-    });
-
-    const params = new URLSearchParams(window.location.search);
-    selectApp(params.get('app') || 'it-tools');
   </script>
 </body>
 </html>

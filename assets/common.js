@@ -89,13 +89,32 @@ export function formatShanghaiEventTime(isoStr) {
 }
 
 /**
+ * HTML 转义，防止外部 Feed 内容注入
+ */
+export function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * 根据上海时间日期确定性地选出当天的索引（支持 salt 避免不同模块同索引同步）
+ */
+export function getDailyItemIndex(total, offsetDays = 0, salt = 0) {
+  if (!total) return 0;
+  const { dayNumber } = getBeijingDate(offsetDays);
+  const diff = dayNumber - EPOCH_DAY + salt;
+  return ((diff % total) + total) % total;
+}
+
+/**
  * 根据北京时间日期确定性地选出当天的专辑索引
  */
 export function getDailyAlbumIndex(totalAlbums, offsetDays = 0) {
-  if (!totalAlbums) return 0;
-  const { dayNumber } = getBeijingDate(offsetDays);
-  const diff = dayNumber - EPOCH_DAY;
-  return ((diff % totalAlbums) + totalAlbums) % totalAlbums;
+  return getDailyItemIndex(totalAlbums, offsetDays, 0);
 }
 
 /**
@@ -291,4 +310,154 @@ export async function fetchNbaScoreboard(yyyymmdd) {
     throw new Error('无法获取 NBA 赛程数据，请检查网络连接');
   }
   return { events };
+}
+
+/**
+ * 拉取单场 NBA 比赛详情（含 Box Score、Linescores 与球队统计）
+ */
+export async function fetchNbaSummary(eventId) {
+  const safeId = String(eventId || '').replace(/[^0-9]/g, '');
+  if (!safeId) throw new Error('无效的比赛 ID');
+
+  const proxyBase = SITE_CONFIG.nba.summaryProxyEndpoint || '/api/nba-summary';
+  const proxyUrl = `${proxyBase}?event=${safeId}`;
+  const directUrl = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${safeId}`;
+
+  for (const url of [proxyUrl, directUrl]) {
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) continue;
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) continue;
+      const data = await res.json();
+      if (data && (data.boxscore || data.header)) {
+        return data;
+      }
+    } catch (_) {
+      // fallback to next url
+    }
+  }
+  throw new Error('无法获取比赛详细技术统计');
+}
+
+/**
+ * 拉取 NBA 东西部战绩榜
+ */
+export async function fetchNbaStandings() {
+  const proxyUrl = SITE_CONFIG.nba.standingsProxyEndpoint || '/api/nba-standings';
+  const directUrl = 'https://site.api.espn.com/apis/v2/sports/basketball/nba/standings';
+
+  for (const url of [proxyUrl, directUrl]) {
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) continue;
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) continue;
+      const data = await res.json();
+      if (data && Array.isArray(data.children)) {
+        return data;
+      }
+    } catch (_) {
+      // fallback to next url
+    }
+  }
+  throw new Error('无法获取 NBA 东西部战绩榜');
+}
+
+/**
+ * 拉取「极客早报」聚合数据
+ * 优先走 Cloudflare Pages Function (/api/digest)；本地开发无 Functions 时自动降级直连支持 CORS 的公开源。
+ */
+export async function fetchGeekDigest() {
+  const proxyUrl = SITE_CONFIG.digest?.proxyEndpoint || '/api/digest';
+  try {
+    const res = await fetch(proxyUrl, { cache: 'no-store' });
+    if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
+      const data = await res.json();
+      if (data && Array.isArray(data.items) && data.items.length > 0) {
+        return { ...data, mode: 'proxy' };
+      }
+    }
+  } catch (_) {
+    // fallback to direct client-side fetch
+  }
+
+  const sinceDate = new Date(Date.now() - 14 * DAY_MS).toISOString().slice(0, 10);
+  const [hnRes, ghRes, devRes] = await Promise.allSettled([
+    fetch('https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=8').then((r) =>
+      r.ok ? r.json() : Promise.reject(new Error('HN failed'))
+    ),
+    fetch(
+      `https://api.github.com/search/repositories?q=created:>${sinceDate}&sort=stars&order=desc&per_page=8`,
+      { headers: { Accept: 'application/vnd.github+json' } }
+    ).then((r) => (r.ok ? r.json() : Promise.reject(new Error('GitHub failed')))),
+    fetch('https://dev.to/api/articles?top=1&per_page=8').then((r) =>
+      r.ok ? r.json() : Promise.reject(new Error('DEV.to failed'))
+    ),
+  ]);
+
+  const buckets = { hn: [], github: [], devto: [] };
+
+  if (hnRes.status === 'fulfilled' && Array.isArray(hnRes.value?.hits)) {
+    buckets.hn = hnRes.value.hits.slice(0, 8).map((hit) => ({
+      id: `hn-${hit.objectID}`,
+      source: 'hn',
+      sourceLabel: 'HN',
+      title: hit.title || 'Untitled',
+      url: hit.url || `https://news.ycombinator.com/item?id=${hit.objectID}`,
+      meta: `${hit.points || 0} pts · ${hit.num_comments || 0} 评论`,
+      points: hit.points || 0,
+      time: hit.created_at || '',
+    }));
+  }
+
+  if (ghRes.status === 'fulfilled' && Array.isArray(ghRes.value?.items)) {
+    buckets.github = ghRes.value.items.slice(0, 8).map((repo) => ({
+      id: `gh-${repo.id}`,
+      source: 'github',
+      sourceLabel: 'GitHub',
+      title: `${repo.full_name}${repo.description ? ` — ${repo.description}` : ''}`,
+      url: repo.html_url,
+      meta: `★ ${repo.stargazers_count}${repo.language ? ` · ${repo.language}` : ''}`,
+      points: repo.stargazers_count || 0,
+      time: repo.created_at || '',
+    }));
+  }
+
+  if (devRes.status === 'fulfilled' && Array.isArray(devRes.value)) {
+    buckets.devto = devRes.value.slice(0, 8).map((art) => ({
+      id: `devto-${art.id}`,
+      source: 'devto',
+      sourceLabel: 'DEV',
+      title: art.title || 'Untitled',
+      url: art.url,
+      meta: `♥ ${art.public_reactions_count || 0} · ${art.reading_time_minutes || 3} min`,
+      points: art.public_reactions_count || 0,
+      time: art.published_at || '',
+    }));
+  }
+
+  const items = [];
+  const maxLen = Math.max(buckets.hn.length, buckets.github.length, buckets.devto.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (buckets.hn[i]) items.push(buckets.hn[i]);
+    if (buckets.github[i]) items.push(buckets.github[i]);
+    if (buckets.devto[i]) items.push(buckets.devto[i]);
+  }
+
+  if (items.length === 0) {
+    throw new Error('暂时无法拉取早报数据源，请检查网络');
+  }
+
+  return {
+    items,
+    counts: {
+      hn: buckets.hn.length,
+      github: buckets.github.length,
+      v2ex: 0,
+      devto: buckets.devto.length,
+    },
+    updatedAt: new Date().toISOString(),
+    mode: 'direct',
+  };
 }
