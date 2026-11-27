@@ -1,117 +1,207 @@
 {
   "date": "2026-11-27",
-  "edition": "早报 #001 · 格式模板示例",
+  "edition": "早报 #001",
   "editor": "Muse",
-  "updatedAt": "2026-11-27T08:00:00+08:00",
-  "editorNote": "这是首期 Muse 定刊结构示例。后续每天抓取 HN / GitHub / V2EX / DEV.to 并提炼完摘要后，只需按此 JSON 格式覆写 data/digest.json 并提交，早报页即可实现点开即读的站内阅读体验。",
+  "updatedAt": "2026-11-27T17:45:00+08:00",
+  "editorNote": "首期正式定刊。今天最值得花时间的是 1Password 的安全事件复盘——员工 GitHub 账号失守后被推送恶意代码到后端，是典型的供应链入口；其余选了自托管回潮、光猫凭据工具、XNU-on-Linux 和本地推理几条硬货，水帖一律降噪。",
   "items": [
     {
       "id": "muse-20261127-1",
       "source": "hn",
       "sourceLabel": "HN",
-      "title": "Why SQLite scales further than most teams assume",
-      "zhTitle": "为什么 SQLite 的单机扩展上限远超多数团队的直觉",
-      "url": "https://www.sqlite.org/whentouse.html",
-      "discussUrl": "https://news.ycombinator.com/",
-      "meta": "342 pts · 164 评论",
-      "tags": ["Database", "SQLite", "Architecture"],
-      "tldr": "在读多写少、配合 WAL 模式与合理索引的场景下，单机 SQLite 往往能轻松撑起每日千万级请求，省掉一整套跨网络数据库运维成本。",
-      "bullets": [
-        "开启 WAL（Write-Ahead Logging）后读与写不再互相阻塞，配合 `PRAGMA synchronous = NORMAL` 可兼顾安全与高吞吐。",
-        "零网络 RTT 让单次查询延迟从毫秒级降到微秒级，复杂 N+1 查询的痛感几乎消失。",
-        "真正需要迁移到 PostgreSQL 的信号不是 QPS，而是多节点水平并发写入与细粒度权限隔离需求。"
+      "title": "1Password Security Incident",
+      "zhTitle": "1Password 安全事件：员工 GitHub 账号失守，恶意代码被推入后端",
+      "url": "https://1password.com/blog/update-on-nov-2026-security-incident",
+      "discussUrl": "https://news.ycombinator.com/item?id=50644817",
+      "meta": "1664 pts · 713 评论",
+      "tags": [
+        "Security",
+        "Supply Chain",
+        "Incident"
       ],
-      "museTake": "小团队做个人工作台或边缘业务时，先别急着上分布式集群——把单机写透往往是最优雅的架构。"
+      "tldr": "攻击者入侵 1Password 一名员工的企业 GitHub 账号，向后端服务推送恶意代码，下载了部分客户的姓名、邮箱与非机密账户元数据；保险库内容未被触及。",
+      "bullets": [
+        "11 月 19 日发现异常：攻击者经员工 GitHub 账号访问源码并推送恶意代码到后端，进而下载管理侧客户数据。",
+        "受影响数据为姓名、邮箱、账户标识、公钥与 SRP 参数等非机密元数据；官方强调保险库内容从未可被攻击者访问。",
+        "源码与 CI/CD 一并失守，基础设施相关密钥已全部轮换；邮件邀请/恢复链接中的 token 单独无法接管账户，还需 SSO 或邮箱六位码。"
+      ],
+      "museTake": "入口不是 0day，是一个员工账号——这和你做的 agent 权限与供应链审计是同一个命题：先收紧人的账号，再谈代码安全。"
     },
     {
       "id": "muse-20261127-2",
-      "source": "github",
-      "sourceLabel": "GitHub",
-      "title": "cloudflare/pages-functions-starter — Zero-config edge API templates",
-      "zhTitle": "Cloudflare Pages 边缘函数零配置实战模板合集",
-      "url": "https://github.com/cloudflare/workers-sdk",
-      "discussUrl": "https://github.com/cloudflare/workers-sdk",
-      "meta": "★ 2,840 · JavaScript",
-      "tags": ["Edge", "Cloudflare", "Serverless"],
-      "tldr": "利用 `functions/api/*.js` 约定式路由，纯静态站点无需额外服务器就能拥有边缘缓存代理与无服务器接口能力。",
-      "bullets": [
-        "只需把文件放进 `functions/api/`，构建时自动映射为同源 `/api/*` 路由，彻底避免前端跨域烦恼。",
-        "通过 `cf: { cacheTtl }` 在全球边缘节点缓存上游接口响应，保护免费 API 配额。",
-        "静态资源与边缘函数共享同一域名和部署流水线，零运维成本。"
+      "source": "hn",
+      "sourceLabel": "HN",
+      "title": "AI made self-hosting fun again",
+      "zhTitle": "AI 让自托管重新变得好玩了",
+      "url": "https://janlukas.blog/posts/ai-self-hosting",
+      "discussUrl": "https://news.ycombinator.com/item?id=50660180",
+      "meta": "664 pts · 338 评论",
+      "tags": [
+        "Self-hosting",
+        "AI Agent",
+        "Docker"
       ],
-      "museTake": "这正是我们当前 `DEV // HUB` 所走的极简路线：前端零构建，后端靠几段几十行的边缘代理搞定全部外部数据源。"
+      "tldr": "当基础设施全部以 Git 仓库里的 Compose 与脚本形式存在时，AI 编程 agent 可以像改代码一样改基础设施，自托管的摩擦成本骤降。",
+      "bullets": [
+        "作者多年自托管热情消退的原因不是技术，而是每改一个服务都要读一晚上文档的摩擦。",
+        "配置即代码之后，试新服务、调配置、写自动化都可直接委托给 agent，维护心智负担明显下降。",
+        "HN 评论区的主流共识：自托管的回潮与 agent 能力同步发生，个人基础设施正在被重新定价。"
+      ],
+      "museTake": "你这台 hub 就是活例子：仓库即事实来源，我负责拉取、部署、验证——自托管的乐趣回来了，运维的苦役没回来。"
     },
     {
       "id": "muse-20261127-3",
-      "source": "v2ex",
-      "sourceLabel": "V2EX",
-      "title": "个人数字工作台该如何做信息降噪，才不会沦为另一个未读角标地狱？",
-      "zhTitle": "讨论：个人主页与信息降噪台的克制设计边界",
-      "url": "https://www.v2ex.com/",
-      "discussUrl": "https://www.v2ex.com/",
-      "meta": "程序员 · 89 回复",
-      "tags": ["信息降噪", "效率工具", "极简"],
-      "tldr": "真正能天天打开的个人工作台，核心不在于塞进多少聚合源，而在于严格限制每日总量并把阅读完成反馈做轻。",
-      "bullets": [
-        "将每日精选控制在 10–16 条以内，阅读时间锚定在 3 分钟，避免产生信息焦虑。",
-        "先看中文摘要再决定是否点开原文，能把英文技术长文的打开率与完读率提升一倍以上。",
-        "把个人品味模块（黑胶、电影、冷知识）和效率工具放在同一屋檐下，才会有“每天都想回来看看”的粘性。"
+      "source": "github",
+      "sourceLabel": "GitHub",
+      "title": "Hut-hzf/ung220z-tool — 光猫多厂商一键凭据提取工具",
+      "zhTitle": "ung220z-tool：针对 UNG220Z 及中兴/烽火/华为光猫的凭据提取与排障工具",
+      "url": "https://github.com/Hut-hzf/ung220z-tool",
+      "discussUrl": "https://github.com/Hut-hzf/ung220z-tool",
+      "meta": "★ 5,731 · Python",
+      "tags": [
+        "Security",
+        "Firmware",
+        "Networking"
       ],
-      "museTake": "信息流是别人喂给你的，工作台是自己搭建的书房——少一点红点，多一点经过筛选的留白。"
+      "tldr": "面向自有设备找回管理员密码、迁移宽带配置的工具，含固件指纹识别与分厂商排障建议，上线十余天已 5.7k star。",
+      "bullets": [
+        "覆盖 UNG220Z 及中兴、烽火、华为、九联多个厂商家族，先识别固件再给对应的提取路径。",
+        "典型用途是找回被运营商锁住的超级管理员密码，以便改桥接、关 TR-069 远程管理等。",
+        "作者明确限定仅用于自己的设备做安全自查——这类工具的双刃属性也正在评论区被讨论。"
+      ],
+      "museTake": "家宽设备才是多数人真正的网络边界。拿它先给自己的光猫做一次自查，比收藏一百个安全工具都有用。"
     },
     {
       "id": "muse-20261127-4",
-      "source": "devto",
-      "sourceLabel": "DEV",
-      "title": "Modern CSS Grid: Why minmax(0, 1fr) saves your mobile layout",
-      "zhTitle": "现代 CSS Grid 实战：为什么 `minmax(0, 1fr)` 是移动端防溢出救星",
-      "url": "https://dev.to/",
-      "discussUrl": "https://dev.to/",
-      "meta": "♥ 412 · 4 min",
-      "tags": ["CSS", "Responsive", "Frontend"],
-      "tldr": "`1fr` 在 CSS Grid 中默认等价于 `minmax(auto, 1fr)`，遇到长字符串或 `nowrap` 元素时会撑破屏幕，改用 `minmax(0, 1fr)` 与 `min-width: 0` 即可根治。",
-      "bullets": [
-        "Grid 轨道默认最小尺寸为 `auto`，意味着长文本或代码块会强行把单列撑宽。",
-        "对网格容器使用 `minmax(0, 1fr)` 并为直接子元素设置 `min-width: 0`，允许文本正常省略或换行。",
-        "结合 `@media (max-width: 640px)` 调整内边距与换行策略，可显著改善单手浏览体验。"
+      "source": "github",
+      "sourceLabel": "GitHub",
+      "title": "AFK-surf/xnulinux — XNU as a loadable kernel module inside Linux",
+      "zhTitle": "xnulinux：把 macOS 的 XNU 内核做成 Linux 的可加载模块",
+      "url": "https://github.com/AFK-surf/xnulinux",
+      "discussUrl": "https://github.com/AFK-surf/xnulinux",
+      "meta": "★ 4,297 · C",
+      "tags": [
+        "Kernel",
+        "macOS",
+        "Linux"
       ],
-      "museTake": "一碟页刚才修掉的“随机盲抽后右侧裁切”正是这个经典坑，写进今天的早报刚好现学现用。"
+      "tldr": "在 arm64 Linux 里以内核模块形式加载 XNU，提供 macOS personality——相当于给 Linux 装了一层 Darwin 兼容心脏。",
+      "bullets": [
+        "目标是让 Mach-O 二进制与 Darwin 系统调用在 Linux 上直接运行，思路类似当年 FreeBSD 的 Linuxulator。",
+        "项目用 C 实现，仍处早期，但 star 增速说明「跨内核 personality」的需求一直都在。",
+        "若成熟，CI 里跑 macOS 目标将不必再租用昂贵的 Mac 硬件队列。"
+      ],
+      "museTake": "WSL 把 Linux 装进 Windows，这个项目反着来。内核兼容层的故事永远不缺观众，缺的是能跑完测试套件的实现。"
     },
     {
       "id": "muse-20261127-5",
       "source": "hn",
       "sourceLabel": "HN",
-      "title": "Synthesizing realistic vinyl crackle and rain with 40 lines of Web Audio API",
-      "zhTitle": "用 40 行原生 Web Audio API 合成温润的黑胶底噪与雨声",
-      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API",
-      "discussUrl": "https://news.ycombinator.com/",
-      "meta": "218 pts · 52 评论",
-      "tags": ["Web Audio", "DSP", "Zero Dependency"],
-      "tldr": "无需加载动辄十几 MB 的 MP3 音频文件，通过随机噪声缓冲区搭配低通/带通滤波器，浏览器本地即可实时合成循环自然的专注环境音。",
-      "bullets": [
-        "将白噪声通过粉红噪声近似公式平滑后，再叠加 `950Hz` 低通滤波即可得到柔和的雨声。",
-        "在平滑低频噪声中以极低概率（`0.08%`）混入微弱脉冲，就能模拟黑胶唱针走过纹路的炒豆声。",
-        "全程零网络请求、零版权风险，且可与番茄钟提示音共用同一个 `AudioContext`。"
+      "title": "AMD-specific fork of llama.cpp",
+      "zhTitle": "专为 AMD 显卡优化的 llama.cpp 分支",
+      "url": "https://devnull.land/amd-specific-llama-cpp",
+      "discussUrl": "https://news.ycombinator.com/item?id=50657265",
+      "meta": "356 pts · 85 评论",
+      "tags": [
+        "LLM",
+        "Local Inference",
+        "AMD"
       ],
-      "museTake": "纯代码长出来的声音，比挂一个外链音频优雅太多了。"
+      "tldr": "针对 AMD GPU 的 llama.cpp 优化分支，试图把本地推理的性价比从 NVIDIA 一家手里抢回来一部分。",
+      "bullets": [
+        "ROCm 生态长期落后于 CUDA，这个分支专注 AMD 卡的内核与内存路径优化。",
+        "讨论焦点在显存带宽利用率：多数消费级本地推理其实是带宽受限而非算力受限。",
+        "配合大显存 AMD 卡，本地跑中等尺寸模型的成本曲线开始变得有竞争力。"
+      ],
+      "museTake": "本地推理的胜负手在显存与带宽，不在跑分。AMD 若把易用性补上，个人 AI 工作站的配置单会改写。"
     },
     {
       "id": "muse-20261127-6",
-      "source": "github",
-      "sourceLabel": "GitHub",
-      "title": "awesome-cli-diagnostics — Essential network & Linux one-liners",
-      "zhTitle": "开发者必备的 Linux 与网络排障单行命令速查",
-      "url": "https://github.com/topics/command-line",
-      "discussUrl": "https://github.com/topics/command-line",
-      "meta": "★ 1,920 · Shell",
-      "tags": ["Linux", "Networking", "CLI"],
-      "tldr": "用 `ss -tulpn`、`curl -w` 与 `lsof +L1` 替代凭感觉排障，十秒钟内把端口、TLS 握手耗时与隐藏磁盘占用定位清楚。",
-      "bullets": [
-        "`ss -tulpn` 直接读取内核 netlink，比 `netstat` 快一个数量级。",
-        "`curl -w` 可拆解 DNS、TCP、TLS 与 TTFB 各阶段耗时，避免误判“接口慢”。",
-        "`lsof +L1 | grep deleted` 专治大日志被 `rm` 后磁盘仍显示 100% 的疑难杂症。"
+      "source": "devto",
+      "sourceLabel": "DEV",
+      "title": "Before You Trust the Canary, Plant a Bug",
+      "zhTitle": "信任金丝雀发布之前，先亲手埋一个 bug",
+      "url": "https://dev.to/copyleftdev/before-you-trust-the-canary-plant-a-bug-1k5a",
+      "discussUrl": "https://dev.to/copyleftdev/before-you-trust-the-canary-plant-a-bug-1k5a",
+      "meta": "♥ 12 · 10 min",
+      "tags": [
+        "Release",
+        "Reliability",
+        "Testing"
       ],
-      "museTake": "这几条已经收录进本站的「今日一技 / 题库」里，遇到排障随时 `Cmd+F` 搜索。"
+      "tldr": "金丝雀发布只有在被证明「能抓住坏版本」时才值得信任——方法是主动注入一个已知缺陷，验证监控与回滚链路真的会报警。",
+      "bullets": [
+        "很多团队的 canary 只是把流量切 5%，却从没验证过指标异常时自动回滚是否真的触发。",
+        "植入 bug 属于故障注入的一种：用可控的小事故，换取对发布系统的真实置信度。",
+        "同样的思路适用于告警、备份恢复与限流——没演练过的保护机制等于没有。"
+      ],
+      "museTake": "和安全里的红队思维完全同构：防护机制的价值不在文档里，在它上一次真实拦住东西是什么时候。"
+    },
+    {
+      "id": "muse-20261127-7",
+      "source": "v2ex",
+      "sourceLabel": "V2EX",
+      "title": "其他模型真的好用，我又何必折腾 Claude 呢",
+      "zhTitle": "V2EX 热议：模型这么多，为什么还在折腾 Claude",
+      "url": "https://www.v2ex.com/t/1260233",
+      "discussUrl": "https://www.v2ex.com/t/1260233",
+      "meta": "Claude · 88 回复",
+      "tags": [
+        "AI",
+        "LLM",
+        "开发者"
+      ],
+      "tldr": "楼主发问引发 88 条回复：多数人留下的理由不是跑分，而是长任务稳定性、工具调用可靠性和上下文不偷懒。",
+      "bullets": [
+        "高频共识：便宜模型在短问答上差距不大，差距在多步 agent 任务的完成率上被放大。",
+        "也有人直言价格敏感场景已迁移，Claude 只留给最难的那部分活。",
+        "讨论里多次出现 Codex、Antigravity 的横向对比，工具链生态成为新的锁定因素。"
+      ],
+      "museTake": "模型选型正在从「谁更聪明」变成「谁能把活干完」。完成率，才是 agent 时代的跑分。"
+    },
+    {
+      "id": "muse-20261127-8",
+      "source": "hn",
+      "sourceLabel": "HN",
+      "title": "Nextcloud Office Desktop app",
+      "zhTitle": "Nextcloud 推出桌面版 Office，欧洲开源办公套件补上本地端",
+      "url": "https://nextcloud.com/blog/euro-office-comes-to-your-desktop-with-the-nextcloud-office-desktop-app/",
+      "discussUrl": "https://news.ycombinator.com/item?id=50654289",
+      "meta": "432 pts · 223 评论",
+      "tags": [
+        "Open Source",
+        "Self-hosting",
+        "Office"
+      ],
+      "tldr": "基于 Collabora/LibreOffice 内核的 Nextcloud Office 推出桌面应用，自托管办公从「浏览器里将就」走向完整的本地 + 云端一体。",
+      "bullets": [
+        "桌面端与 Nextcloud 服务器无缝同步，文档格式兼容仍是其对抗 Microsoft 365 的主战场。",
+        "欧洲机构出于数据主权考虑加速迁移，开源办公套件迎来罕见的政策顺风。",
+        "HN 评论的保留意见集中在复杂文档的渲染一致性上——这仍是 LibreOffice 系的老问题。"
+      ],
+      "museTake": "数据主权从口号变成采购清单时，开源基础设施的机会就来了。自托管办公的最后一公里是格式兼容，不是功能。"
+    },
+    {
+      "id": "muse-20261127-9",
+      "source": "devto",
+      "sourceLabel": "DEV",
+      "title": "Benchmarking Gemma 4 E2B with Long Contexts",
+      "zhTitle": "实测 Gemma 4 E2B 的长上下文表现",
+      "url": "https://dev.to/gde/benchmarking-gemma-4-e2b-with-long-contexts-1jb9",
+      "discussUrl": "https://dev.to/gde/benchmarking-gemma-4-e2b-with-long-contexts-1jb9",
+      "meta": "♥ 11 · 12 min",
+      "tags": [
+        "LLM",
+        "Benchmark",
+        "Edge AI"
+      ],
+      "tldr": "对 Google 端侧小模型 Gemma 4 E2B 做长上下文基准：标称窗口和可用窗口之间，依然隔着注意力衰减这道坎。",
+      "bullets": [
+        "测试聚焦长上下文下的检索准确率与吞吐衰减，而非只看短 prompt 跑分。",
+        "小模型在长上下文里更容易「读了后面忘前面」，RAG 切分策略比窗口大小更重要。",
+        "端侧模型的价值在离线与隐私场景，评测口径也应从峰值能力转向稳定可用区间。"
+      ],
+      "museTake": "标称上下文长度是营销数字，有效上下文才是工程数字。给小模型喂长文档前，先测它到底记得住多少。"
     }
   ]
 }
