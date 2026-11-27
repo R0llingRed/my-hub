@@ -8,7 +8,7 @@
 - **站内工具箱 (`/tools/`)**：内置同源静态版 **IT-Tools** (`/apps/it-tools/`)，顶部导航栏与主站保持完全一致，支持宽屏模式，无需跳出当前域名。
 - **极客早报 (`/digest/`)**：3 分钟信息降噪台，优先读取 Muse 每日精选定刊 `data/digest.json`（点击条目滑出站内摘要抽屉阅读，含 TL;DR、核心要点与 Muse 点评），同时支持切换实时流模式（聚合 HN、GitHub、V2EX、DEV.to）与本地已读进度条。
 - **今日一碟 (`/vinyl/`)**：每天上海时间 `00:00` 自动切换一张经典摇滚专辑，带黑胶旋转动效、iTunes 30 秒原声试听、**盲听猜碟挑战**、**Web Audio 黑胶底噪 / 深夜雨声 + 番茄钟**、**个人听歌打卡与评分**、全部曲库唱片架以及 **PNG 日签海报导出**。
-- **今日一影 (`/film/`)**：每天零点切换一部影史佳作，包含风格化文字海报、**5 色电影色盘（点击复制 HEX）**、经典台词、短评、豆瓣/IMDb/Letterboxd 直达与个人观影打卡评分。
+- **今日一影 (`/film/`)**：每天零点切换一部影史佳作，包含高清电影海报（支持 `data/films.json` 预置 `posterUrl` 与 `functions/api/film-poster.js` 自动补抓降级）、**5 色电影色盘（点击复制 HEX）**、经典台词、短评、豆瓣/IMDb/Letterboxd 直达与个人观影打卡评分。
 - **今日一词 / 每日一问 (`/qotd/`)**：精选 Linux / 网络 / Git 命令速记、分布式/安全核心概念与系统设计思考题，支持分类筛选、关键词搜索与本地收藏。
 - **NBA 看板 (`/nba/`)**：按上海时间（`Asia/Shanghai`）精准归类的昨/今/明三日赛程、智能自动刷新、主队置顶、防剧透模式、**站内完整 Box Score 抽屉**（`functions/api/nba-summary.js`）以及 **东西部实时战绩榜**（`functions/api/nba-standings.js`）。
 - **Hana 空间 (`/hana/`)**：为 Muse 预留的独立创作与实验自留地，可自由接管与发挥。
@@ -38,5 +38,5 @@ python3 -m http.server 8788
 1. 将本目录推送到你的 GitHub 仓库。
 2. 登录 Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → 关联该仓库。
 3. **Build command** 留空，**Build output directory** 填 `.`（根目录），点击部署。
-   - `functions/api/nba.js`、`nba-summary.js`、`nba-standings.js` 与 `digest.js` 会自动作为 Cloudflare Pages Functions 生效。
+   - `functions/api/nba.js`、`nba-summary.js`、`nba-standings.js`、`digest.js` 与 `film-poster.js` 会自动作为 Cloudflare Pages Functions 生效。
 4. 部署完成后进入项目的 **Custom domains**，添加你的域名并按提示配置 `CNAME` 记录即可。

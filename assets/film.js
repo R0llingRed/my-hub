@@ -1,6 +1,7 @@
 import {
   copyText,
   escapeHtml,
+  fetchFilmPoster,
   formatCountdown,
   getDailyItemIndex,
   getShanghaiDate,
@@ -23,6 +24,16 @@ const btnCloseFilmShelf = document.getElementById('btnCloseFilmShelf');
 const filmShelfSearch = document.getElementById('filmShelfSearch');
 const shelfGrid = document.getElementById('shelfGrid');
 const paletteHint = document.getElementById('paletteHint');
+const posterImage = document.getElementById('posterImage');
+
+posterImage.addEventListener('load', () => {
+  if (posterImage.getAttribute('src')) {
+    posterImage.classList.add('loaded');
+  }
+});
+posterImage.addEventListener('error', () => {
+  posterImage.classList.remove('loaded');
+});
 
 let films = [];
 let currentFilmIdx = 0;
@@ -99,11 +110,14 @@ filmNoteInput.addEventListener('input', () => {
 
 filmNoteInput.addEventListener('blur', flushFilmNote);
 
-function renderFilm(idx, badgeText) {
+async function renderFilm(idx, badgeText) {
   currentFilmIdx = idx;
   const film = films[idx];
   const accent = film.accentColor || '#6366f1';
   const palette = film.palette || ['#09090b', accent, '#27272a', '#a1a1aa', '#fafafa'];
+
+  posterImage.classList.remove('loaded');
+  posterImage.removeAttribute('src');
 
   document.documentElement.style.setProperty('--film-accent', accent);
   document.getElementById('ambientGlow').style.background = `
@@ -171,6 +185,11 @@ function renderFilm(idx, badgeText) {
   `;
 
   renderPersonalLog(film);
+
+  const posterUrl = await fetchFilmPoster(film);
+  if (currentFilmIdx !== idx || !posterUrl) return;
+  posterImage.alt = `${film.title} 海报`;
+  posterImage.src = posterUrl;
 }
 
 function openFilmShelfDrawer() {
@@ -239,6 +258,14 @@ function renderShelf() {
         : `<span style="color:#fbbf24;">★ ${escapeHtml(film.rating)}</span>`;
       return `
         <button class="film-crate-card ${idx === currentFilmIdx ? 'selected' : ''}" data-idx="${idx}" data-label="${escapeHtml(clickLabel)}">
+          <div class="film-crate-poster" style="background:linear-gradient(155deg, ${escapeHtml(palette[0] || '#09090b')} 0%, ${escapeHtml(palette[1] || '#18181b')} 60%, ${escapeHtml(palette[2] || film.accentColor || '#6366f1')}55 100%);">
+            <div class="film-crate-poster-fallback">${escapeHtml(film.title)}</div>
+            ${
+              film.posterUrl
+                ? `<img src="${escapeHtml(film.posterUrl)}" alt="${escapeHtml(film.title)}" loading="lazy" referrerpolicy="no-referrer" onload="this.classList.add('loaded')" onerror="this.remove()" />`
+                : ''
+            }
+          </div>
           <div class="film-crate-palette">
             ${palette.map((hex) => `<span style="background:${escapeHtml(hex)};"></span>`).join('')}
           </div>
@@ -251,7 +278,7 @@ function renderShelf() {
               ${escapeHtml(film.title)}
             </div>
             <div style="font-size:11.5px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-              ${escapeHtml(film.director)} · ${escapeHtml(film.genre)}
+              ${escapeHtml(film.director)} · ${escapeHtml(film.year)}
             </div>
           </div>
         </button>

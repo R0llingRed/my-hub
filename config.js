@@ -34,6 +34,10 @@ export const SITE_CONFIG = {
     proxyEndpoint: '/api/digest',
   },
 
+  film: {
+    posterProxyEndpoint: '/api/film-poster',
+  },
+
   hana: {
     title: 'Hana // Muse',
     subtitle: 'Muse 专属创作与实验空间',

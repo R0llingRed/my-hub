@@ -83,12 +83,19 @@
             <span class="arrow-hint">→</span>
           </div>
         </div>
-        <div class="palette-strip" id="filmPalettePreview" style="margin-bottom:12px;"></div>
-        <h3 id="filmTitle" style="margin:0 0 4px;font-size:17px;font-weight:600;">加载今日电影...</h3>
-        <div id="filmMeta" style="font-size:12.5px;color:var(--text-secondary);margin-bottom:8px;">—</div>
-        <p id="filmSnippet" class="tool-desc" style="font-size:12.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
-          每天零点推荐一部值得重温的影史佳作。
-        </p>
+        <div class="film-home-preview">
+          <div class="film-home-poster-wrap" id="filmPosterWrap">
+            <img class="film-home-poster" id="filmPosterThumb" alt="今日电影海报" referrerpolicy="no-referrer" />
+          </div>
+          <div style="min-width:0;flex:1;">
+            <h3 id="filmTitle" style="margin:0 0 4px;font-size:17px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">加载今日电影...</h3>
+            <div id="filmMeta" style="font-size:12.5px;color:var(--text-secondary);margin-bottom:8px;">—</div>
+            <p id="filmSnippet" class="tool-desc" style="font-size:12.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+              每天零点推荐一部值得重温的影史佳作。
+            </p>
+          </div>
+        </div>
+        <div class="palette-strip" id="filmPalettePreview"></div>
         <div class="tags" style="justify-content:space-between;align-items:center;">
           <span class="tag" id="filmRatingTag">★ —</span>
           <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);" id="filmCountdown">换片 --:--:--</span>

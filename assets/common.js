@@ -539,3 +539,48 @@ export async function fetchGeekDigest() {
     mode: 'direct',
   };
 }
+
+/**
+ * 获取电影海报：优先使用 data/films.json 预置的 posterUrl，
+ * 若未预填则走 /api/film-poster 边缘代理并缓存到 localStorage（7 天）。
+ */
+export async function fetchFilmPoster(film) {
+  if (!film) return '';
+  if (typeof film.posterUrl === 'string' && /^https?:\/\//i.test(film.posterUrl)) {
+    return film.posterUrl;
+  }
+
+  const cacheKey = `film_poster_v1_${film.id || film.title}`;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Date.now() - parsed.ts < 7 * DAY_MS) {
+        return parsed.url || '';
+      }
+    }
+  } catch (_) {}
+
+  const query = film.originalTitle || film.title;
+  if (!query) return '';
+
+  const proxyBase = SITE_CONFIG.film?.posterProxyEndpoint || '/api/film-poster';
+  const url = `${proxyBase}?q=${encodeURIComponent(query)}&year=${encodeURIComponent(film.year || '')}`;
+
+  try {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) return '';
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) return '';
+    const data = await res.json();
+    const posterUrl = typeof data?.posterUrl === 'string' ? data.posterUrl : '';
+    if (posterUrl) {
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), url: posterUrl }));
+      } catch (_) {}
+    }
+    return posterUrl;
+  } catch (_) {
+    return '';
+  }
+}

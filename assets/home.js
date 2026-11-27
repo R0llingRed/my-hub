@@ -4,6 +4,7 @@ import {
   copyText,
   escapeHtml,
   fetchCuratedDigest,
+  fetchFilmPoster,
   fetchGeekDigest,
   fetchItunesMetadata,
   fetchNbaScoreboardByShanghaiOffset,
@@ -114,10 +115,25 @@ async function initFilmWidget() {
     document.getElementById('filmSnippet').textContent = film.review;
     document.getElementById('filmRatingTag').textContent = `★ ${film.rating}`;
 
+    const palette = film.palette || ['#09090b', film.accentColor || '#6366f1'];
+    const posterWrap = document.getElementById('filmPosterWrap');
+    const posterThumb = document.getElementById('filmPosterThumb');
+    if (posterWrap) {
+      posterWrap.style.background = `linear-gradient(155deg, ${palette[0] || '#09090b'} 0%, ${palette[1] || '#18181b'} 60%, ${palette[2] || film.accentColor || '#6366f1'}66 100%)`;
+    }
+
     const paletteEl = document.getElementById('filmPalettePreview');
     paletteEl.innerHTML = (film.palette || [])
       .map((hex) => `<span class="palette-swatch" style="background:${escapeHtml(hex)};"></span>`)
       .join('');
+
+    const posterUrl = await fetchFilmPoster(film);
+    if (posterThumb && posterUrl) {
+      posterThumb.onload = () => posterThumb.classList.add('loaded');
+      posterThumb.onerror = () => posterThumb.classList.remove('loaded');
+      posterThumb.alt = `${film.title} 海报`;
+      posterThumb.src = posterUrl;
+    }
   } catch (_) {
     document.getElementById('filmTitle').textContent = '今日一影';
     document.getElementById('filmSnippet').textContent = '点击进入完整电影卡片与色盘';
