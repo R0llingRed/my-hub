@@ -24,7 +24,7 @@ export const SITE_CONFIG = {
       tagline: '安全与编解码流水线',
       description: 'GCHQ 开源网络瑞士军刀，支持多步骤 Recipe 串联加解密、Magic 自动识别与证书解析。',
       // 已内置到本地同源目录，也可改为任意自建地址
-      url: '/apps/cyberchef/',
+      url: 'https://gchq.github.io/CyberChef/', // 瘦身版：改用 GCHQ 官方托管，站内不再自带 59MB
       tags: ['Recipe', 'Base64', 'AES', 'Magic', 'X.509'],
       shortcut: '2',
     },
