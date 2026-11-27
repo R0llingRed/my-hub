@@ -2,6 +2,7 @@ import { SITE_CONFIG } from '../config.js';
 import {
   buildFallbackCover,
   escapeHtml,
+  fetchCuratedDigest,
   fetchGeekDigest,
   fetchItunesMetadata,
   fetchNbaScoreboardByShanghaiOffset,
@@ -130,20 +131,26 @@ async function initFilmWidget() {
   setInterval(updateCountdown, 1000);
 }
 
-// 6. 加载「极客早报」预览（4 条）
+// 6. 加载「极客早报」预览（优先 Muse 定刊，无则降级实时流，展示 4 条）
 async function initDigestWidget() {
   const listEl = document.getElementById('digestMiniList');
+  const sourcesTagEl = document.getElementById('digestSourcesTag');
   try {
-    const data = await fetchGeekDigest();
+    const curated = await fetchCuratedDigest('.');
+    const data = curated || (await fetchGeekDigest());
     const top4 = (data.items || []).slice(0, 4);
     if (!top4.length) throw new Error('empty');
+
+    if (curated && sourcesTagEl) {
+      sourcesTagEl.textContent = `✦ Muse 定刊 · ${curated.date || '今日'}`;
+    }
 
     listEl.innerHTML = top4
       .map(
         (item) => `
           <div class="digest-mini-item">
             <span class="source-badge source-${escapeHtml(item.source)}">${escapeHtml(item.sourceLabel)}</span>
-            <span class="digest-mini-title">${escapeHtml(item.title)}</span>
+            <span class="digest-mini-title">${escapeHtml(item.zhTitle || item.title)}</span>
             <span class="digest-mini-meta">${escapeHtml(item.meta)}</span>
           </div>
         `

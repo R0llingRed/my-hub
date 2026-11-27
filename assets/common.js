@@ -365,6 +365,52 @@ export async function fetchNbaStandings() {
 }
 
 /**
+ * 拉取「Muse 每日定刊」静态摘要（data/digest.json）
+ * 返回 null 表示暂未配置或格式无效，调用方可自动降级到实时流。
+ */
+export async function fetchCuratedDigest(basePath = '.') {
+  const SOURCE_LABELS = {
+    hn: 'HN',
+    github: 'GitHub',
+    v2ex: 'V2EX',
+    devto: 'DEV',
+  };
+
+  try {
+    const url = `${basePath.replace(/\/$/, '')}/data/digest.json`;
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || !Array.isArray(data.items) || data.items.length === 0) {
+      return null;
+    }
+
+    const items = data.items.map((item, idx) => {
+      const source = item.source || 'hn';
+      return {
+        ...item,
+        id: item.id || `curated-${idx}`,
+        source,
+        sourceLabel: item.sourceLabel || SOURCE_LABELS[source] || source.toUpperCase(),
+        title: item.title || item.zhTitle || 'Untitled',
+        zhTitle: item.zhTitle || item.title || 'Untitled',
+        meta: item.meta || '',
+        tags: Array.isArray(item.tags) ? item.tags : [],
+        bullets: Array.isArray(item.bullets) ? item.bullets : [],
+      };
+    });
+
+    return {
+      ...data,
+      items,
+      mode: 'curated',
+    };
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
  * 拉取「极客早报」聚合数据
  * 优先走 Cloudflare Pages Function (/api/digest)；本地开发无 Functions 时自动降级直连支持 CORS 的公开源。
  */
