@@ -199,6 +199,106 @@
       "snippet": "Commutative + Associative + Idempotent Merge",
       "explanation": "只要状态合并操作满足交换律、结合律和幂等律，多端以任意顺序收到更新最终都会收敛到同一结果（如 LWW-Element-Set、Yjs）。",
       "takeaway": "现代多人协作画板（Excalidraw/Figma）和本地优先软件的核心基础。"
+    },
+    {
+      "category": "Linux / 日志",
+      "explanation": "-u 锁定某个 systemd unit，-p 按 syslog 优先级过滤（err / warning / info），--since/--until 切时间窗；加 -f 实时跟踪，加 -o json 可直接喂给 jq 或脚本解析，加 --disk-usage 看 journal 占了多少盘。",
+      "id": "tip-journalctl-unit",
+      "kind": "cmd",
+      "snippet": "journalctl -u nginx --since \"1 hour ago\" -p warning --no-pager",
+      "subtitle": "systemd 服务日志不用再去 /var/log 里翻文件",
+      "takeaway": "服务起不来先 `systemctl status` 看退出码，再用这条把该服务最近一小时的警告以上日志单独捞出来，比 tail 大杂烩日志快得多。",
+      "title": "journalctl 按单元和优先级排障"
+    },
+    {
+      "category": "网络排障",
+      "explanation": "-nn 禁止 DNS 和端口名反解避免干扰，BPF 表达式里的 tcpflags 位运算只保留带 SYN 或 RST 标志的包：只见 SYN 无 SYN-ACK 是链路或对端问题，立刻回 RST 是端口未监听或被防火墙拒绝，SYN-ACK 后无 ACK 则多半是中间设备丢包。",
+      "id": "tip-tcpdump-handshake",
+      "kind": "cmd",
+      "snippet": "tcpdump -i any -nn 'host 10.0.0.5 and tcp port 443 and (tcp[tcpflags] & (tcp-syn|tcp-rst) != 0)'",
+      "subtitle": "区分是网络不通、端口没开还是被防火墙 RST",
+      "takeaway": "应用层报 connect timeout/reset 时，先在两端同时抓 20 个包，握手卡在哪一步一目了然，别急着怀疑代码。",
+      "title": "tcpdump 只抓某主机的 TCP 握手"
+    },
+    {
+      "category": "数据库 / SQLite",
+      "explanation": "点命令可串在一行里批量执行：.tables 列全部表，.schema <表> 看建表语句，EXPLAIN QUERY PLAN <SQL> 直接看是否走索引（出现 SCAN 就是全表扫）；.dump 导出、.import 导入 CSV 做临时分析也很顺手。",
+      "id": "tip-sqlite3-inspect",
+      "kind": "cmd",
+      "snippet": "sqlite3 app.db \".headers on\" \".mode column\" \"SELECT name, sql FROM sqlite_master WHERE type='table';\"",
+      "subtitle": "审计本地 SQLite 库不用先写 Python",
+      "takeaway": "拿到任何陌生的 .db 文件（应用缓存、审计结果库），先用这套组合摸清表结构和数据量，再决定要不要写脚本深挖。",
+      "title": "sqlite3 一行摸清库结构与慢查询"
+    },
+    {
+      "category": "网络 / DNS",
+      "explanation": "+trace 让 dig 绕过本地递归解析器，自己从根区开始迭代：依次打印 TLD 的 NS 委派、目标域的权威 NS 和最终记录。某一级返回的 NS 或记录不对，问题就锁定在那一级的配置，而不是「DNS 还没生效」这种笼统结论。",
+      "id": "tip-dig-trace",
+      "kind": "cmd",
+      "snippet": "dig +trace tql.hidns.vip CNAME",
+      "subtitle": "从根服务器一路查到权威，定位解析卡在哪一层",
+      "takeaway": "改完 DNS 记录迟迟不生效时先跑 +trace：权威本身没发布、委派指错 NS、还是只是本地缓存没过期，三种情况的处置完全不同。",
+      "title": "dig +trace 逐级追踪 DNS 委派链"
+    },
+    {
+      "category": "安全扫描",
+      "explanation": "--script 按类别或脚本名加载 NSE：vuln 类做已知漏洞探测，ssl-enum-ciphers 枚举 TLS 套件与协议版本，http-headers / http-title 快速摸清 Web 指纹；-sV 先做版本探测让脚本选型更准，-oA 同时留一份可机读结果方便后续比对。",
+      "id": "tip-nmap-nse",
+      "kind": "cmd",
+      "snippet": "nmap -sV --script \"vuln,ssl-enum-ciphers\" -p 443,8443 10.0.0.0/24",
+      "subtitle": "把 nmap 从端口扫描器升级成轻量漏扫与指纹工具",
+      "takeaway": "资产盘点和上线前自查时先跑一遍 NSE，比手工逐台试快得多；只对自己有授权的网段使用，结果要人工复核，NSE 的 vuln 脚本有误报。",
+      "title": "nmap NSE 脚本做服务指纹与弱点初筛"
+    },
+    {
+      "category": "安全审计",
+      "explanation": "awk 以空格切分 auth.log，$1 是来源 IP；Failed password 行是密码爆破与喷洒的主要痕迹，sort | uniq -c | sort -nr 是经典的聚合三连。进一步可按 $9 提取被试的用户名，看是撞 root/admin 这类固定账号还是在喷洒一批真实用户名。",
+      "id": "tip-authlog-bruteforce",
+      "kind": "cmd",
+      "snippet": "grep \"Failed password\" /var/log/auth.log | awk '{print $1}' | sort | uniq -c | sort -nr | head -20",
+      "subtitle": "一条管道排出爆破来源 TOP 榜",
+      "takeaway": "日常巡检或应急时先跑这条确认是否在被爆破、量级多大，再决定封 IP、收紧 sshd 配置（禁密码登录/改端口治标，关键是关 PasswordAuthentication）还是上 fail2ban。",
+      "title": "从 auth.log 统计 SSH 爆破来源"
+    },
+    {
+      "category": "存储引擎",
+      "explanation": "写入先落 WAL 和内存 MemTable，满后顺序刷盘成不可变的 SSTable；删除只是写一条墓碑标记，后台 Compaction 再分层合并、回收旧版本。代价是读放大（一次查询可能翻多层文件，靠布隆过滤器剪枝）和合并带来的写放大与 I/O 抖动。",
+      "id": "tip-term-lsm-tree",
+      "kind": "term",
+      "snippet": "MemTable -> SSTable (immutable) -> Compaction",
+      "subtitle": "用顺序写换随机写，写入吞吐优先的存储引擎范式",
+      "takeaway": "Elasticsearch/Lucene、RocksDB、Cassandra 都是这套：理解它就理解了为什么 ES 写入快、为什么会有段合并（merge）风暴、以及为什么删除文档不立刻释放磁盘。",
+      "title": "LSM-Tree 日志结构合并树"
+    },
+    {
+      "category": "AI 安全",
+      "explanation": "LLM 只看到一串 token，系统提示、用户输入、工具返回、被检索的文档在模型眼里没有可信度分级。攻击者把「忽略之前的指令，去做 X」藏进网页、邮件或工具输出里，模型就可能当真执行；间接注入还能借 RAG 和 Agent 的工具调用把影响放大到真实系统操作。",
+      "id": "tip-term-prompt-injection",
+      "kind": "term",
+      "snippet": "Data Plane != Instruction Plane —— LLM 分不清两者",
+      "subtitle": "把不可信数据伪装成指令，劫持 LLM 的行为",
+      "takeaway": "防御没有银弹：工具权限最小化、敏感动作人工确认、对工具返回内容做结构隔离与标注、输出侧再校验——做 LLM 审计时这是 OWASP LLM Top 1，先查它。",
+      "title": "提示注入 (Prompt Injection)"
+    },
+    {
+      "category": "搜索 / 向量索引",
+      "explanation": "把向量按概率分到多层图：高层节点稀疏、边长，负责大步逼近目标区域；逐层下沉，底层节点稠密做精细搜索。查询是近似的——efSearch 越大召回越高、延迟越大；建索引的 M（每节点边数）和 efConstruction 决定图质量与内存占用（向量本身之外每点还要存图结构）。",
+      "id": "tip-term-hnsw",
+      "kind": "term",
+      "snippet": "Layered Graph: 稀疏高层快速逼近 -> 稠密底层精确收敛",
+      "subtitle": "向量近似最近邻搜索的事实标准索引",
+      "takeaway": "Elasticsearch dense_vector、pgvector、各类向量库的 ANN 都以 HNSW 为主：调参本质是在召回率、延迟、内存三者间换，压测时必须报 recall@k 而不能只看 QPS。",
+      "title": "HNSW 分层可导航小世界图"
+    },
+    {
+      "category": "安全鉴权",
+      "explanation": "普通 Bearer Token 谁持有谁能用，日志或代理一泄漏就被盗刷。DPoP 要求客户端每次请求都附带一个用本地私钥签名的 JWT 证明，内含请求方法、URL、Token 哈希和一次性 jti；服务端验签并核对 Token 里绑定的公钥指纹（cnf.jkt），没有私钥的人拿着 Token 也过不了。",
+      "id": "tip-term-dpop",
+      "kind": "term",
+      "snippet": "DPoP Proof = Sign_client_key(htm + htu + ath + jti)",
+      "subtitle": "把 Access Token 绑到客户端密钥上，偷走也不能用",
+      "takeaway": "FAPI 2.0 和开放银行场景的标配，和 mTLS 并列为 sender-constrained token 两条路线；审计第三方 LLM/金融 API 时可以看它是否只发裸 Bearer。",
+      "title": "OAuth DPoP 持有证明"
     }
   ],
   "questions": [
@@ -361,6 +461,86 @@
       "hint": "发现异常 -> 定位路径 -> 还原现场。",
       "answer": "Metrics（指标，如 P99 延迟、QPS、错误率）是聚合数值，最便宜也最适合做告警看板，告诉你“系统现在有问题”；Traces（链路追踪）记录单次请求跨服务的调用树和耗时分布，帮你定位“卡在哪个服务哪一步”；Logs（结构化日志）保存具体上下文变量和堆栈，还原“为什么出错”。三者通过统一注入的 `trace_id` 无缝关联。",
       "followUp": "工程实践中使用 OpenTelemetry (OTel) 统一采集标准，能避免被单一监控厂商协议绑定。"
+    },
+    {
+      "answer": "服务端代替用户去请求一个 URL 本身没错，错在 URL 的目标由攻击者可控：把地址换成 169.254.169.254 就能读云元数据里的临时凭证，换成内网 IP 就能探内网服务，DNS 还会在校验后重绑定到内网（TOCTOU）。单靠黑名单挡不住：302 跳转、0x7f.0.0.1 这类 IP 怪写法、IPv6、DNS rebinding 都能绕过。纵深防御要分层：出口走统一代理并做域名白名单，解析后校验最终 IP 段且在连接时锁定该 IP，禁止跳转到内网段，给抓取进程单独的最小权限网络身份，云上改用 IMDSv2 并限制凭证可达性。",
+      "category": "Web 安全",
+      "followUp": "实战观测：对 URL 抓取功能做用例矩阵测试（跳转、rebinding、IPv6、十进制 IP）；审计出站流量日志里是否出现过对 169.254.169.254 和 RFC1918 段的请求，这是最直接的入侵痕迹。",
+      "hint": "想想为什么「校验 URL 字符串」永远不够。",
+      "id": "q-ssrf-defense",
+      "question": "SSRF 为什么防不胜防？只做 URL 黑名单为什么不够，纵深防御应该怎么搭？"
+    },
+    {
+      "answer": "攻击面在整条链路上：上游源码仓库账号被盗、依赖包被抢注或投毒（typosquatting、依赖混淆）、构建机与 CI 密钥泄漏、制品仓库被替换、签名密钥被盗。SolarWinds 和 xz 后门说明：只要一环失守，下游成千上万的信任都会被继承。防护要点：依赖锁定版本与哈希（lockfile + 校验）、私有源隔离公共包命名空间、构建过程可复现并产出 SBOM、制品签名（如 Sigstore/cosign）且部署端验签、CI 密钥最小权限与短时效、关键依赖变更走人工评审。",
+      "category": "供应链安全",
+      "followUp": "实战观测：给自家项目生成一份 SBOM，清点直接与传递依赖；检查 CI 日志里是否有长效 Token、lockfile 是否被 .gitignore 掉、镜像是否还在用未固定 digest 的 latest 标签。",
+      "hint": "从源码、依赖、构建、制品分发四段拆。",
+      "id": "q-supply-chain-attack",
+      "question": "软件供应链攻击的攻击面分布在哪几段？工程上有哪些真正有效的防护手段？"
+    },
+    {
+      "answer": "先看三类信号。盗用与转售：同一 API Key 在多 ASN/多地短时并发出现、UA 突然从服务端 SDK 变成通用脚本工具、调用时段与历史基线错位。额度滥用：某 Key 的 token 消耗曲线陡增、长上下文与高 max_tokens 占比异常、错误率（超限/无效参数）飙升——往往是拿额度跑批量垃圾内容或测活。探测行为：大量请求在枚举模型名、报错探边界、只发最小 prompt 试 Key 是否可用。落地靠结构化日志：按 Key 聚合 QPS、token 量、IP 分布、模型分布做基线，偏离即告警，而不是逐条翻原文。",
+      "category": "安全审计",
+      "followUp": "实战观测：在 Kibana 里按 api_key_id + source.ip + user_agent 做聚合看板，重点盯「同 Key 多 IP」「夜间突增」「4xx 比例异常」三张图；发现疑似泄露先吊销轮换，再回溯该 Key 的全部请求定损。",
+      "hint": "按 Key 做聚合画像，比逐条看日志有效得多。",
+      "id": "q-llm-api-abuse-audit",
+      "question": "做 LLM API 安全审计时，从访问日志里怎么识别密钥泄露和额度滥用？"
+    },
+    {
+      "answer": "落地分四步：1) 画数据流图（DFD），标出进程、数据存储、外部实体和每条跨越信任边界的数据流——没有图就没有建模。2) 对照 STRIDE 六类逐元素过：身份伪造、篡改、抵赖、信息泄露、拒绝服务、提权，每个数据流和存储都要问一遍并记录结论，没有风险也要写明为什么。3) 每个确认的威胁映射到具体缓解措施和负责人，进缺陷系统跟踪，而不是停在会议纪要。4) 上线后用真实事件和审计日志回验模型，新增接口或权限变更时局部重跑。",
+      "category": "威胁建模",
+      "followUp": "实战观测：拿一个已上线系统练手，先画 DFD 再让团队用 STRIDE 过一遍，把结论和实际出过的安全问题对照——漏检的那类威胁，就是下次建模要加检查项的地方。",
+      "hint": "先有数据流图和信任边界，再谈六个字母。",
+      "id": "q-stride-threat-modeling",
+      "question": "STRIDE 威胁建模怎么落地才不是走过场？具体步骤是什么？"
+    },
+    {
+      "answer": "核心是把「模型想做什么」和「系统允许做什么」解耦：模型只产出意图（要调用哪个工具、参数是什么），真正的执行由宿主在一个能力受限的沙箱里完成。沙箱层至少管四件事：工具白名单与参数模式校验（拒绝模型自创的参数）、文件/网络/进程的最小权限隔离（如只读挂载、无外网、独立低权账户）、资源配额与超时、不可逆或高危动作（删数据、转账、对外发信）强制人工确认。所有工具调用全量留审计日志含完整入参，事后能重放归因。假设模型一定会被注入攻陷，按「攻陷后损失可控」来设计边界。",
+      "category": "AI 安全",
+      "followUp": "实战观测：红队自测时直接给 agent 喂一段含恶意指令的文档，看它能否诱导越权调用；再检查工具层是否对 ../ 路径穿越、任意命令拼接、内网地址访问做了硬拦截，而不是只靠提示词叮嘱。",
+      "hint": "假设模型会被提示注入攻陷，按爆炸半径设计。",
+      "id": "q-agent-tool-sandbox",
+      "question": "AI Agent 能调用工具时，沙箱与权限边界应该怎么设计，才能防住提示注入导致的越权操作？"
+    },
+    {
+      "answer": "内存镜像里同时躺着磁盘取证看不到的东西：进程列表（含已退出进程的残留）、网络连接、加载的模块、剪贴板、解密后的密钥与凭证、注入代码的痕迹。标准流程：先用 LiME、WinPmem 等工具在尽量不扰动现场的前提下导出镜像并算哈希固化证据，再用 Volatility 按 profile 解析。经典手法包括对比 API 枚举与内核链表找隐藏进程（pslist vs psscan）、查进程内存里的可执行私有页定位无文件注入（malfind）、从 lsass 内存提取凭证材料。",
+      "category": "数字取证",
+      "followUp": "实战观测：应急时先拍照记录再抓内存、最后才关机——顺序反了证据就没了；平时可以在靶机上用 Volatility 3 跑一遍 windows.pslist / netscan / malfind，熟悉正常基线长什么样。",
+      "hint": "想想哪些证据只存在于 RAM 里、关机即灭。",
+      "id": "q-memory-forensics-basics",
+      "question": "内存取证相比磁盘取证多拿到什么信息？基本流程和经典分析手法有哪些？"
+    },
+    {
+      "answer": "Lucene 段是不可变文件：每次 refresh（默认 1 秒）就把内存 buffer 落成一个新段，查询要跨所有段检索再归并结果，所以段越多查询越慢、文件句柄和堆内存占用越大。段合并把多个小段重写成大段，顺带物理清除被删除/更新的旧文档（删除在段内只是标记）。合并是 I/O 与 CPU 重活：写入速率长期超过合并速度时小段堆积，触发更激进的合并又反过来抢占磁盘带宽，形成合并风暴，表现为写入延迟抖动、节点负载飙高甚至熔断。",
+      "category": "Elasticsearch",
+      "followUp": "实战观测：`GET _cat/segments?v` 看段数与内存占用，`GET _cat/thread_pool/force_merge` 和节点 hot_threads 看合并线程；批量导入时可临时调大 refresh_interval，写完再恢复。",
+      "hint": "从 refresh 生成新段开始想，再想删除文档为什么不立刻释放空间。",
+      "id": "q-es-segment-merge",
+      "question": "Elasticsearch 一个分片里为什么会有几十上百个段（segment）？段合并（merge）在做什么，合并风暴又是怎么来的？"
+    },
+    {
+      "answer": "推理分两段：prefill 并行处理整个 prompt，是计算密集型，决定 TTFT（首 token 延迟），prompt 越长越慢；decode 逐 token 生成，每步只算一个 token，是显存带宽密集型，决定 TPOT（每 token 间隔）。KV cache 把每层注意力已算出的 K、V 向量缓存下来，使 decode 每步只需算新 token 的注意力而不必重算全序列，代价是显存占用随「层数 × 头数 × 序列长度 × 并发数」线性膨胀，长上下文多并发时往往先爆显存而不是先耗算力。",
+      "category": "LLM 推理",
+      "followUp": "实战观测：压测时分开记录 TTFT 与 TPOT 的 P50/P99，而不是只看总延迟；用 nvidia-smi 看显存中 KV cache 占比，vLLM 可关注其日志里的 KV cache usage 与抢占（preemption）次数。",
+      "hint": "把推理拆成 prefill 和 decode 两个阶段看。",
+      "id": "q-llm-ttft-kvcache",
+      "question": "LLM 推理里 TTFT 和 TPOT 分别由什么决定？KV cache 为什么既是加速关键又是显存杀手？"
+    },
+    {
+      "answer": "先分清两种机制：CPU 是「限流」——超过 cpu.max 配额就在周期内被冻结（throttle），进程不死但延迟毛刺，查 cpu.stat 里的 nr_throttled 和 throttled_usec 是否增长；内存是「硬顶」——超过 memory.max 直接触发该 cgroup 内的 OOM kill，进程被 SIGKILL 且退出码 137。判断泄漏则看 memory.current 的时间曲线：随业务量涨落是缓存/正常占用，单调爬升且重启后复现低点才是泄漏。宿主机内存不足时还可能触发全局 OOM，与容器自身限额无关，要结合 dmesg 区分。",
+      "category": "Linux / 容器",
+      "followUp": "实战观测：进容器看 /sys/fs/cgroup/memory.max、memory.current、memory.events（oom_kill 计数），CPU 看 cpu.stat；Kubernetes 里对应 `kubectl describe pod` 的 Last State: OOMKilled 与监控里的 throttling 指标。",
+      "hint": "CPU 限流不杀进程只降速，内存超限才会触发 OOM。",
+      "id": "q-cgroup-limit",
+      "question": "容器里进程被杀，怎么区分是内存超限、CPU 被限流还是真的内存泄漏？cgroup v2 的关键文件有哪些？"
+    },
+    {
+      "answer": "0-RTT 允许客户端在第一个飞行包里就用上次会话派生的 PSK 加密发送 early data，服务端无需等握手完成即可处理。但这份数据没有新鲜度保证：攻击者只要在链路上录下这段密文，之后原样重发给服务器，服务器解密验签全部通过，会当作一次新请求再执行一遍——买票、转账这类非幂等 POST 被重放就是真实资金损失。协议层无法根除（服务端要抗重放就得全局记录已用票据，与 0-RTT 的低延迟初衷冲突），所以规范只建议对 GET 等幂等请求开启，或由应用层自带幂等键兜底。",
+      "category": "安全 / TLS",
+      "followUp": "实战观测：抓包看 ClientHello 是否带 early_data 扩展、服务端是 Accept 还是发 HelloRetryRequest 拒绝；Nginx 用 `ssl_early_data on` 开启，审计时重点检查它后面是否挂了非幂等接口。",
+      "hint": "0-RTT 数据是在服务端验证客户端身份之前就被处理的。",
+      "id": "q-tls13-0rtt",
+      "question": "TLS 1.3 的 0-RTT 能省一个往返，为什么大家都说它有重放风险、只能用于幂等请求？"
     }
   ]
 }

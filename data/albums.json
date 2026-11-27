@@ -9,16 +9,46 @@
     "itunesQuery": "Pink Floyd The Dark Side of the Moon",
     "review": "摇滚史上最完美的概念专辑之一。从心跳声开场到心跳声落幕，整张唱片像一条无缝流动的河流，把时间流逝、金钱焦虑、疯狂与死亡织进了迷幻的合成器与吉他音墙里。建议关灯整张听完，不要切歌。",
     "tracks": [
-      { "title": "Speak to Me", "duration": "1:07" },
-      { "title": "Breathe (In the Air)", "duration": "2:49" },
-      { "title": "On the Run", "duration": "3:45" },
-      { "title": "Time", "duration": "6:53" },
-      { "title": "The Great Gig in the Sky", "duration": "4:44" },
-      { "title": "Money", "duration": "6:22" },
-      { "title": "Us and Them", "duration": "7:49" },
-      { "title": "Any Colour You Like", "duration": "3:26" },
-      { "title": "Brain Damage", "duration": "3:46" },
-      { "title": "Eclipse", "duration": "2:12" }
+      {
+        "title": "Speak to Me",
+        "duration": "1:07"
+      },
+      {
+        "title": "Breathe (In the Air)",
+        "duration": "2:49"
+      },
+      {
+        "title": "On the Run",
+        "duration": "3:45"
+      },
+      {
+        "title": "Time",
+        "duration": "6:53"
+      },
+      {
+        "title": "The Great Gig in the Sky",
+        "duration": "4:44"
+      },
+      {
+        "title": "Money",
+        "duration": "6:22"
+      },
+      {
+        "title": "Us and Them",
+        "duration": "7:49"
+      },
+      {
+        "title": "Any Colour You Like",
+        "duration": "3:26"
+      },
+      {
+        "title": "Brain Damage",
+        "duration": "3:46"
+      },
+      {
+        "title": "Eclipse",
+        "duration": "2:12"
+      }
     ]
   },
   {
@@ -31,14 +61,38 @@
     "itunesQuery": "Led Zeppelin IV",
     "review": "连封面都没有印乐队名字和专辑标题的狂妄之作，却装进了《Black Dog》《Rock and Roll》和《Stairway to Heaven》三首殿堂级神曲。民谣的静谧与硬摇滚的雷霆在这张碟里达到了教科书般的平衡。",
     "tracks": [
-      { "title": "Black Dog", "duration": "4:54" },
-      { "title": "Rock and Roll", "duration": "3:40" },
-      { "title": "The Battle of Evermore", "duration": "5:51" },
-      { "title": "Stairway to Heaven", "duration": "8:02" },
-      { "title": "Misty Mountain Hop", "duration": "4:38" },
-      { "title": "Four Sticks", "duration": "4:44" },
-      { "title": "Going to California", "duration": "3:31" },
-      { "title": "When the Levee Breaks", "duration": "7:07" }
+      {
+        "title": "Black Dog",
+        "duration": "4:54"
+      },
+      {
+        "title": "Rock and Roll",
+        "duration": "3:40"
+      },
+      {
+        "title": "The Battle of Evermore",
+        "duration": "5:51"
+      },
+      {
+        "title": "Stairway to Heaven",
+        "duration": "8:02"
+      },
+      {
+        "title": "Misty Mountain Hop",
+        "duration": "4:38"
+      },
+      {
+        "title": "Four Sticks",
+        "duration": "4:44"
+      },
+      {
+        "title": "Going to California",
+        "duration": "3:31"
+      },
+      {
+        "title": "When the Levee Breaks",
+        "duration": "7:07"
+      }
     ]
   },
   {
@@ -51,18 +105,54 @@
     "itunesQuery": "Radiohead OK Computer",
     "review": "1997 年写给 21 世纪的焦虑预言书。冷峻、疏离、精密又充满破碎的美感。当《Paranoid Android》和《Let Down》响起时，你会觉得它比任何一张当代专辑都更像今天。",
     "tracks": [
-      { "title": "Airbag", "duration": "4:44" },
-      { "title": "Paranoid Android", "duration": "6:23" },
-      { "title": "Subterranean Homesick Alien", "duration": "4:27" },
-      { "title": "Exit Music (For a Film)", "duration": "4:24" },
-      { "title": "Let Down", "duration": "4:59" },
-      { "title": "Karma Police", "duration": "4:21" },
-      { "title": "Fitter Happier", "duration": "1:57" },
-      { "title": "Electioneering", "duration": "3:50" },
-      { "title": "Climbing Up the Walls", "duration": "4:45" },
-      { "title": "No Surprises", "duration": "3:48" },
-      { "title": "Lucky", "duration": "4:19" },
-      { "title": "The Tourist", "duration": "5:24" }
+      {
+        "title": "Airbag",
+        "duration": "4:44"
+      },
+      {
+        "title": "Paranoid Android",
+        "duration": "6:23"
+      },
+      {
+        "title": "Subterranean Homesick Alien",
+        "duration": "4:27"
+      },
+      {
+        "title": "Exit Music (For a Film)",
+        "duration": "4:24"
+      },
+      {
+        "title": "Let Down",
+        "duration": "4:59"
+      },
+      {
+        "title": "Karma Police",
+        "duration": "4:21"
+      },
+      {
+        "title": "Fitter Happier",
+        "duration": "1:57"
+      },
+      {
+        "title": "Electioneering",
+        "duration": "3:50"
+      },
+      {
+        "title": "Climbing Up the Walls",
+        "duration": "4:45"
+      },
+      {
+        "title": "No Surprises",
+        "duration": "3:48"
+      },
+      {
+        "title": "Lucky",
+        "duration": "4:19"
+      },
+      {
+        "title": "The Tourist",
+        "duration": "5:24"
+      }
     ]
   },
   {
@@ -75,18 +165,54 @@
     "itunesQuery": "Nirvana Nevermind",
     "review": "一把吉他、一套鼓、几声嘶吼，直接掀翻了 80 年代华丽金属的牌桌。Kurt Cobain 把最锋利的愤怒和最抓耳的流行旋律焊在了一起，哪怕过去三十多年，前奏一响肾上腺素还是会飙升。",
     "tracks": [
-      { "title": "Smells Like Teen Spirit", "duration": "5:01" },
-      { "title": "In Bloom", "duration": "4:14" },
-      { "title": "Come as You Are", "duration": "3:39" },
-      { "title": "Breed", "duration": "3:03" },
-      { "title": "Lithium", "duration": "4:17" },
-      { "title": "Polly", "duration": "2:57" },
-      { "title": "Territorial Pissings", "duration": "2:22" },
-      { "title": "Drain You", "duration": "3:43" },
-      { "title": "Lounge Act", "duration": "2:36" },
-      { "title": "Stay Away", "duration": "3:32" },
-      { "title": "On a Plain", "duration": "3:16" },
-      { "title": "Something in the Way", "duration": "3:52" }
+      {
+        "title": "Smells Like Teen Spirit",
+        "duration": "5:01"
+      },
+      {
+        "title": "In Bloom",
+        "duration": "4:14"
+      },
+      {
+        "title": "Come as You Are",
+        "duration": "3:39"
+      },
+      {
+        "title": "Breed",
+        "duration": "3:03"
+      },
+      {
+        "title": "Lithium",
+        "duration": "4:17"
+      },
+      {
+        "title": "Polly",
+        "duration": "2:57"
+      },
+      {
+        "title": "Territorial Pissings",
+        "duration": "2:22"
+      },
+      {
+        "title": "Drain You",
+        "duration": "3:43"
+      },
+      {
+        "title": "Lounge Act",
+        "duration": "2:36"
+      },
+      {
+        "title": "Stay Away",
+        "duration": "3:32"
+      },
+      {
+        "title": "On a Plain",
+        "duration": "3:16"
+      },
+      {
+        "title": "Something in the Way",
+        "duration": "3:52"
+      }
     ]
   },
   {
@@ -99,18 +225,54 @@
     "itunesQuery": "The Beatles Abbey Road",
     "review": "披头士最后的录音室绝唱，四个人明知即将分道扬镳，却交出了最默契、最灿烂的谢幕演出。B 面长达 16 分钟的组曲堪称流行音乐编曲的终极浪漫。",
     "tracks": [
-      { "title": "Come Together", "duration": "4:19" },
-      { "title": "Something", "duration": "3:02" },
-      { "title": "Maxwell's Silver Hammer", "duration": "3:27" },
-      { "title": "Oh! Darling", "duration": "3:27" },
-      { "title": "Octopus's Garden", "duration": "2:51" },
-      { "title": "I Want You (She's So Heavy)", "duration": "7:47" },
-      { "title": "Here Comes the Sun", "duration": "3:05" },
-      { "title": "Because", "duration": "2:45" },
-      { "title": "You Never Give Me Your Money", "duration": "4:02" },
-      { "title": "Golden Slumbers", "duration": "1:31" },
-      { "title": "Carry That Weight", "duration": "1:36" },
-      { "title": "The End", "duration": "2:21" }
+      {
+        "title": "Come Together",
+        "duration": "4:19"
+      },
+      {
+        "title": "Something",
+        "duration": "3:02"
+      },
+      {
+        "title": "Maxwell's Silver Hammer",
+        "duration": "3:27"
+      },
+      {
+        "title": "Oh! Darling",
+        "duration": "3:27"
+      },
+      {
+        "title": "Octopus's Garden",
+        "duration": "2:51"
+      },
+      {
+        "title": "I Want You (She's So Heavy)",
+        "duration": "7:47"
+      },
+      {
+        "title": "Here Comes the Sun",
+        "duration": "3:05"
+      },
+      {
+        "title": "Because",
+        "duration": "2:45"
+      },
+      {
+        "title": "You Never Give Me Your Money",
+        "duration": "4:02"
+      },
+      {
+        "title": "Golden Slumbers",
+        "duration": "1:31"
+      },
+      {
+        "title": "Carry That Weight",
+        "duration": "1:36"
+      },
+      {
+        "title": "The End",
+        "duration": "2:21"
+      }
     ]
   },
   {
@@ -123,16 +285,46 @@
     "itunesQuery": "Queen A Night at the Opera",
     "review": "当时制作成本最昂贵的摇滚专辑，没有使用任何合成器，却靠吉他与人声叠录造出了一座歌剧院。光是一首《Bohemian Rhapsody》就足以让这张碟在摇滚史上永垂不朽。",
     "tracks": [
-      { "title": "Death on Two Legs", "duration": "3:43" },
-      { "title": "Lazing on a Sunday Afternoon", "duration": "1:07" },
-      { "title": "I'm in Love with My Car", "duration": "3:05" },
-      { "title": "You're My Best Friend", "duration": "2:52" },
-      { "title": "'39", "duration": "3:31" },
-      { "title": "Sweet Lady", "duration": "4:03" },
-      { "title": "Seaside Rendezvous", "duration": "2:15" },
-      { "title": "The Prophet's Song", "duration": "8:21" },
-      { "title": "Love of My Life", "duration": "3:39" },
-      { "title": "Bohemian Rhapsody", "duration": "5:55" }
+      {
+        "title": "Death on Two Legs",
+        "duration": "3:43"
+      },
+      {
+        "title": "Lazing on a Sunday Afternoon",
+        "duration": "1:07"
+      },
+      {
+        "title": "I'm in Love with My Car",
+        "duration": "3:05"
+      },
+      {
+        "title": "You're My Best Friend",
+        "duration": "2:52"
+      },
+      {
+        "title": "'39",
+        "duration": "3:31"
+      },
+      {
+        "title": "Sweet Lady",
+        "duration": "4:03"
+      },
+      {
+        "title": "Seaside Rendezvous",
+        "duration": "2:15"
+      },
+      {
+        "title": "The Prophet's Song",
+        "duration": "8:21"
+      },
+      {
+        "title": "Love of My Life",
+        "duration": "3:39"
+      },
+      {
+        "title": "Bohemian Rhapsody",
+        "duration": "5:55"
+      }
     ]
   },
   {
@@ -145,17 +337,50 @@
     "itunesQuery": "David Bowie Ziggy Stardust",
     "review": "David Bowie 化身外星摇滚巨星 Ziggy，用 38 分钟讲述了一个关于星际预言、成名与自我毁灭的华丽寓言。吉他手 Mick Ronson 的音色凌厉得像一道闪电。",
     "tracks": [
-      { "title": "Five Years", "duration": "4:42" },
-      { "title": "Soul Love", "duration": "3:34" },
-      { "title": "Moonage Daydream", "duration": "4:40" },
-      { "title": "Starman", "duration": "4:10" },
-      { "title": "It Ain't Easy", "duration": "2:58" },
-      { "title": "Lady Stardust", "duration": "3:22" },
-      { "title": "Star", "duration": "2:47" },
-      { "title": "Hang On to Yourself", "duration": "2:40" },
-      { "title": "Ziggy Stardust", "duration": "3:13" },
-      { "title": "Suffragette City", "duration": "3:25" },
-      { "title": "Rock 'n' Roll Suicide", "duration": "2:58" }
+      {
+        "title": "Five Years",
+        "duration": "4:42"
+      },
+      {
+        "title": "Soul Love",
+        "duration": "3:34"
+      },
+      {
+        "title": "Moonage Daydream",
+        "duration": "4:40"
+      },
+      {
+        "title": "Starman",
+        "duration": "4:10"
+      },
+      {
+        "title": "It Ain't Easy",
+        "duration": "2:58"
+      },
+      {
+        "title": "Lady Stardust",
+        "duration": "3:22"
+      },
+      {
+        "title": "Star",
+        "duration": "2:47"
+      },
+      {
+        "title": "Hang On to Yourself",
+        "duration": "2:40"
+      },
+      {
+        "title": "Ziggy Stardust",
+        "duration": "3:13"
+      },
+      {
+        "title": "Suffragette City",
+        "duration": "3:25"
+      },
+      {
+        "title": "Rock 'n' Roll Suicide",
+        "duration": "2:58"
+      }
     ]
   },
   {
@@ -168,17 +393,50 @@
     "itunesQuery": "Fleetwood Mac Rumours",
     "review": "乐队内部全员分手、互相指责的狗血修罗场，竟然淬炼出了史上最丝滑、最抓耳的摇滚唱片之一。每一首几乎都是金曲，一边心碎一边写出《Dreams》和《The Chain》，太狠了。",
     "tracks": [
-      { "title": "Second Hand News", "duration": "2:56" },
-      { "title": "Dreams", "duration": "4:14" },
-      { "title": "Never Going Back Again", "duration": "2:14" },
-      { "title": "Don't Stop", "duration": "3:11" },
-      { "title": "Go Your Own Way", "duration": "3:38" },
-      { "title": "Songbird", "duration": "3:20" },
-      { "title": "The Chain", "duration": "4:30" },
-      { "title": "You Make Loving Fun", "duration": "3:31" },
-      { "title": "I Don't Want to Know", "duration": "3:11" },
-      { "title": "Oh Daddy", "duration": "3:56" },
-      { "title": "Gold Dust Woman", "duration": "4:56" }
+      {
+        "title": "Second Hand News",
+        "duration": "2:56"
+      },
+      {
+        "title": "Dreams",
+        "duration": "4:14"
+      },
+      {
+        "title": "Never Going Back Again",
+        "duration": "2:14"
+      },
+      {
+        "title": "Don't Stop",
+        "duration": "3:11"
+      },
+      {
+        "title": "Go Your Own Way",
+        "duration": "3:38"
+      },
+      {
+        "title": "Songbird",
+        "duration": "3:20"
+      },
+      {
+        "title": "The Chain",
+        "duration": "4:30"
+      },
+      {
+        "title": "You Make Loving Fun",
+        "duration": "3:31"
+      },
+      {
+        "title": "I Don't Want to Know",
+        "duration": "3:11"
+      },
+      {
+        "title": "Oh Daddy",
+        "duration": "3:56"
+      },
+      {
+        "title": "Gold Dust Woman",
+        "duration": "4:56"
+      }
     ]
   },
   {
@@ -191,15 +449,42 @@
     "itunesQuery": "万能青年旅店 Omnipotent Youth Society",
     "review": "华语摇滚绕不开的里程碑。小号、大提琴与失真吉他交织出华北工业城市的雾气与悲欢，《杀死那个石家庄人》不只是故事，更是一代人的集体记忆。",
     "tracks": [
-      { "title": "狗尿馆", "duration": "1:59" },
-      { "title": "不万能的喜剧", "duration": "5:29" },
-      { "title": "揪心的玩笑与漫长的白日梦", "duration": "6:56" },
-      { "title": "大石碎胸口", "duration": "7:05" },
-      { "title": "洋鸟消夏录", "duration": "1:04" },
-      { "title": "秦皇岛", "duration": "8:05" },
-      { "title": "十万嬉皮", "duration": "4:45" },
-      { "title": "在这颗行星所有的酒馆", "duration": "9:08" },
-      { "title": "杀死那个石家庄人", "duration": "5:44" }
+      {
+        "title": "狗尿馆",
+        "duration": "1:59"
+      },
+      {
+        "title": "不万能的喜剧",
+        "duration": "5:29"
+      },
+      {
+        "title": "揪心的玩笑与漫长的白日梦",
+        "duration": "6:56"
+      },
+      {
+        "title": "大石碎胸口",
+        "duration": "7:05"
+      },
+      {
+        "title": "洋鸟消夏录",
+        "duration": "1:04"
+      },
+      {
+        "title": "秦皇岛",
+        "duration": "8:05"
+      },
+      {
+        "title": "十万嬉皮",
+        "duration": "4:45"
+      },
+      {
+        "title": "在这颗行星所有的酒馆",
+        "duration": "9:08"
+      },
+      {
+        "title": "杀死那个石家庄人",
+        "duration": "5:44"
+      }
     ]
   },
   {
@@ -212,16 +497,46 @@
     "itunesQuery": "Guns N Roses Appetite for Destruction",
     "review": "史上最凶猛的处女作。没有任何废话，从《Welcome to the Jungle》第一秒起就像一头冲出洛杉矶暗巷的野兽，Slash 的吉他 Solo 和 Axl Rose 的尖啸把硬摇滚的危险魅力发挥到极致。",
     "tracks": [
-      { "title": "Welcome to the Jungle", "duration": "4:31" },
-      { "title": "It's So Easy", "duration": "3:21" },
-      { "title": "Nightrain", "duration": "4:26" },
-      { "title": "Out ta Get Me", "duration": "4:20" },
-      { "title": "Mr. Brownstone", "duration": "3:46" },
-      { "title": "Paradise City", "duration": "6:46" },
-      { "title": "My Michelle", "duration": "3:39" },
-      { "title": "Think About You", "duration": "3:50" },
-      { "title": "Sweet Child o' Mine", "duration": "5:56" },
-      { "title": "Rocket Queen", "duration": "6:13" }
+      {
+        "title": "Welcome to the Jungle",
+        "duration": "4:31"
+      },
+      {
+        "title": "It's So Easy",
+        "duration": "3:21"
+      },
+      {
+        "title": "Nightrain",
+        "duration": "4:26"
+      },
+      {
+        "title": "Out ta Get Me",
+        "duration": "4:20"
+      },
+      {
+        "title": "Mr. Brownstone",
+        "duration": "3:46"
+      },
+      {
+        "title": "Paradise City",
+        "duration": "6:46"
+      },
+      {
+        "title": "My Michelle",
+        "duration": "3:39"
+      },
+      {
+        "title": "Think About You",
+        "duration": "3:50"
+      },
+      {
+        "title": "Sweet Child o' Mine",
+        "duration": "5:56"
+      },
+      {
+        "title": "Rocket Queen",
+        "duration": "6:13"
+      }
     ]
   },
   {
@@ -234,16 +549,46 @@
     "itunesQuery": "AC DC Back in Black",
     "review": "原主唱去世后乐队身着黑衣归来的致敬之作，却成了史上销量最高的摇滚专辑之一。没有花哨的技巧，只有最纯粹、最扎实、一听就想甩头的三和弦 Riff。",
     "tracks": [
-      { "title": "Hells Bells", "duration": "5:12" },
-      { "title": "Shoot to Thrill", "duration": "5:17" },
-      { "title": "What Do You Do for Money Honey", "duration": "3:35" },
-      { "title": "Givin the Dog a Bone", "duration": "3:31" },
-      { "title": "Let Me Put My Love Into You", "duration": "4:15" },
-      { "title": "Back in Black", "duration": "4:15" },
-      { "title": "You Shook Me All Night Long", "duration": "3:30" },
-      { "title": "Have a Drink on Me", "duration": "3:58" },
-      { "title": "Shake a Leg", "duration": "4:05" },
-      { "title": "Rock and Roll Ain't Noise Pollution", "duration": "4:15" }
+      {
+        "title": "Hells Bells",
+        "duration": "5:12"
+      },
+      {
+        "title": "Shoot to Thrill",
+        "duration": "5:17"
+      },
+      {
+        "title": "What Do You Do for Money Honey",
+        "duration": "3:35"
+      },
+      {
+        "title": "Givin the Dog a Bone",
+        "duration": "3:31"
+      },
+      {
+        "title": "Let Me Put My Love Into You",
+        "duration": "4:15"
+      },
+      {
+        "title": "Back in Black",
+        "duration": "4:15"
+      },
+      {
+        "title": "You Shook Me All Night Long",
+        "duration": "3:30"
+      },
+      {
+        "title": "Have a Drink on Me",
+        "duration": "3:58"
+      },
+      {
+        "title": "Shake a Leg",
+        "duration": "4:05"
+      },
+      {
+        "title": "Rock and Roll Ain't Noise Pollution",
+        "duration": "4:15"
+      }
     ]
   },
   {
@@ -256,14 +601,38 @@
     "itunesQuery": "Eagles Hotel California",
     "review": "夕阳下的加州棕榈树，看似纸醉金迷，实则写满了对美国梦幻灭的清醒审视。同名曲结尾长达两分钟的双吉他对飙，是无数吉他手学琴路上的终极梦想。",
     "tracks": [
-      { "title": "Hotel California", "duration": "6:30" },
-      { "title": "New Kid in Town", "duration": "5:04" },
-      { "title": "Life in the Fast Lane", "duration": "4:46" },
-      { "title": "Wasted Time", "duration": "4:55" },
-      { "title": "Victim of Love", "duration": "4:11" },
-      { "title": "Pretty Maids All in a Row", "duration": "4:05" },
-      { "title": "Try and Love Again", "duration": "5:10" },
-      { "title": "The Last Resort", "duration": "7:25" }
+      {
+        "title": "Hotel California",
+        "duration": "6:30"
+      },
+      {
+        "title": "New Kid in Town",
+        "duration": "5:04"
+      },
+      {
+        "title": "Life in the Fast Lane",
+        "duration": "4:46"
+      },
+      {
+        "title": "Wasted Time",
+        "duration": "4:55"
+      },
+      {
+        "title": "Victim of Love",
+        "duration": "4:11"
+      },
+      {
+        "title": "Pretty Maids All in a Row",
+        "duration": "4:05"
+      },
+      {
+        "title": "Try and Love Again",
+        "duration": "5:10"
+      },
+      {
+        "title": "The Last Resort",
+        "duration": "7:25"
+      }
     ]
   },
   {
@@ -276,16 +645,46 @@
     "itunesQuery": "Joy Division Unknown Pleasures",
     "review": "那张被印在无数 T 恤上的脉冲星波形封面背后，是一张冰冷、空旷又极具力量感的后朋克神作。Ian Curtis 低沉克制的嗓音像在曼彻斯特的雨夜里独自前行。",
     "tracks": [
-      { "title": "Disorder", "duration": "3:32" },
-      { "title": "Day of the Lords", "duration": "4:49" },
-      { "title": "Candidate", "duration": "3:05" },
-      { "title": "Insight", "duration": "4:29" },
-      { "title": "New Dawn Fades", "duration": "4:47" },
-      { "title": "She's Lost Control", "duration": "3:57" },
-      { "title": "Shadowplay", "duration": "3:55" },
-      { "title": "Wilderness", "duration": "2:38" },
-      { "title": "Interzone", "duration": "2:16" },
-      { "title": "I Remember Nothing", "duration": "5:53" }
+      {
+        "title": "Disorder",
+        "duration": "3:32"
+      },
+      {
+        "title": "Day of the Lords",
+        "duration": "4:49"
+      },
+      {
+        "title": "Candidate",
+        "duration": "3:05"
+      },
+      {
+        "title": "Insight",
+        "duration": "4:29"
+      },
+      {
+        "title": "New Dawn Fades",
+        "duration": "4:47"
+      },
+      {
+        "title": "She's Lost Control",
+        "duration": "3:57"
+      },
+      {
+        "title": "Shadowplay",
+        "duration": "3:55"
+      },
+      {
+        "title": "Wilderness",
+        "duration": "2:38"
+      },
+      {
+        "title": "Interzone",
+        "duration": "2:16"
+      },
+      {
+        "title": "I Remember Nothing",
+        "duration": "5:53"
+      }
     ]
   },
   {
@@ -298,16 +697,46 @@
     "itunesQuery": "Oasis Morning Glory",
     "review": "90 年代英伦摇滚最不可一世的巅峰时刻。满溢着街头少年的狂妄与温柔，《Wonderwall》《Don't Look Back in Anger》《Champagne Supernova》每一首都是万人大合唱的圣歌。",
     "tracks": [
-      { "title": "Hello", "duration": "3:21" },
-      { "title": "Roll with It", "duration": "3:59" },
-      { "title": "Wonderwall", "duration": "4:18" },
-      { "title": "Don't Look Back in Anger", "duration": "4:48" },
-      { "title": "Hey Now!", "duration": "5:41" },
-      { "title": "Some Might Say", "duration": "5:29" },
-      { "title": "Cast No Shadow", "duration": "4:51" },
-      { "title": "She's Electric", "duration": "3:40" },
-      { "title": "Morning Glory", "duration": "5:03" },
-      { "title": "Champagne Supernova", "duration": "7:27" }
+      {
+        "title": "Hello",
+        "duration": "3:21"
+      },
+      {
+        "title": "Roll with It",
+        "duration": "3:59"
+      },
+      {
+        "title": "Wonderwall",
+        "duration": "4:18"
+      },
+      {
+        "title": "Don't Look Back in Anger",
+        "duration": "4:48"
+      },
+      {
+        "title": "Hey Now!",
+        "duration": "5:41"
+      },
+      {
+        "title": "Some Might Say",
+        "duration": "5:29"
+      },
+      {
+        "title": "Cast No Shadow",
+        "duration": "4:51"
+      },
+      {
+        "title": "She's Electric",
+        "duration": "3:40"
+      },
+      {
+        "title": "Morning Glory",
+        "duration": "5:03"
+      },
+      {
+        "title": "Champagne Supernova",
+        "duration": "7:27"
+      }
     ]
   },
   {
@@ -320,11 +749,26 @@
     "itunesQuery": "Pink Floyd Wish You Were Here",
     "review": "写给缺席的挚友 Syd Barrett，也写给被商业机器异化的音乐工业。David Gilmour 在《Shine On You Crazy Diamond》里弹出的那四个音符，是摇滚史上最令人心碎的思念。",
     "tracks": [
-      { "title": "Shine On You Crazy Diamond (Pts. 1-5)", "duration": "13:32" },
-      { "title": "Welcome to the Machine", "duration": "7:31" },
-      { "title": "Have a Cigar", "duration": "5:08" },
-      { "title": "Wish You Were Here", "duration": "5:34" },
-      { "title": "Shine On You Crazy Diamond (Pts. 6-9)", "duration": "12:28" }
+      {
+        "title": "Shine On You Crazy Diamond (Pts. 1-5)",
+        "duration": "13:32"
+      },
+      {
+        "title": "Welcome to the Machine",
+        "duration": "7:31"
+      },
+      {
+        "title": "Have a Cigar",
+        "duration": "5:08"
+      },
+      {
+        "title": "Wish You Were Here",
+        "duration": "5:34"
+      },
+      {
+        "title": "Shine On You Crazy Diamond (Pts. 6-9)",
+        "duration": "12:28"
+      }
     ]
   },
   {
@@ -337,16 +781,46 @@
     "itunesQuery": "窦唯 黑梦",
     "review": "1994 年魔岩三杰横空出世时最先锋的一张唱片。窦唯用极简阴郁的节奏与飘渺的人声，造出了一座至今听来依然超前、迷人又略带寒意的梦境迷宫。",
     "tracks": [
-      { "title": "明天更漫长", "duration": "4:35" },
-      { "title": "黑色梦中", "duration": "4:46" },
-      { "title": "还有你", "duration": "5:51" },
-      { "title": "开心电话", "duration": "3:57" },
-      { "title": "从命", "duration": "4:35" },
-      { "title": "感觉时刻", "duration": "3:56" },
-      { "title": "悲伤的梦", "duration": "6:08" },
-      { "title": "噢！乖", "duration": "5:15" },
-      { "title": "高级动物", "duration": "4:40" },
-      { "title": "上帝保佑", "duration": "3:44" }
+      {
+        "title": "明天更漫长",
+        "duration": "4:35"
+      },
+      {
+        "title": "黑色梦中",
+        "duration": "4:46"
+      },
+      {
+        "title": "还有你",
+        "duration": "5:51"
+      },
+      {
+        "title": "开心电话",
+        "duration": "3:57"
+      },
+      {
+        "title": "从命",
+        "duration": "4:35"
+      },
+      {
+        "title": "感觉时刻",
+        "duration": "3:56"
+      },
+      {
+        "title": "悲伤的梦",
+        "duration": "6:08"
+      },
+      {
+        "title": "噢！乖",
+        "duration": "5:15"
+      },
+      {
+        "title": "高级动物",
+        "duration": "4:40"
+      },
+      {
+        "title": "上帝保佑",
+        "duration": "3:44"
+      }
     ]
   },
   {
@@ -359,14 +833,38 @@
     "itunesQuery": "Metallica Master of Puppets",
     "review": "激流金属的圣经。既有精密如交响乐般的结构编排，又有排山倒海的速度与力量。器乐曲《Orion》里 Cliff Burton 的贝斯独奏证明了重金属也能拥有史诗般的诗意。",
     "tracks": [
-      { "title": "Battery", "duration": "5:12" },
-      { "title": "Master of Puppets", "duration": "8:35" },
-      { "title": "The Thing That Should Not Be", "duration": "6:36" },
-      { "title": "Welcome Home (Sanitarium)", "duration": "6:27" },
-      { "title": "Disposable Heroes", "duration": "8:16" },
-      { "title": "Leper Messiah", "duration": "5:40" },
-      { "title": "Orion", "duration": "8:27" },
-      { "title": "Damage, Inc.", "duration": "5:32" }
+      {
+        "title": "Battery",
+        "duration": "5:12"
+      },
+      {
+        "title": "Master of Puppets",
+        "duration": "8:35"
+      },
+      {
+        "title": "The Thing That Should Not Be",
+        "duration": "6:36"
+      },
+      {
+        "title": "Welcome Home (Sanitarium)",
+        "duration": "6:27"
+      },
+      {
+        "title": "Disposable Heroes",
+        "duration": "8:16"
+      },
+      {
+        "title": "Leper Messiah",
+        "duration": "5:40"
+      },
+      {
+        "title": "Orion",
+        "duration": "8:27"
+      },
+      {
+        "title": "Damage, Inc.",
+        "duration": "5:32"
+      }
     ]
   },
   {
@@ -379,16 +877,46 @@
     "itunesQuery": "U2 The Joshua Tree",
     "review": "开篇三连击《Where the Streets Have No Name》《I Still Haven't Found What I'm Looking For》《With or Without You》堪称摇滚史上最豪华的开场，广阔得像一片没有尽头的沙漠星空。",
     "tracks": [
-      { "title": "Where the Streets Have No Name", "duration": "5:37" },
-      { "title": "I Still Haven't Found What I'm Looking For", "duration": "4:37" },
-      { "title": "With or Without You", "duration": "4:56" },
-      { "title": "Bullet the Blue Sky", "duration": "4:32" },
-      { "title": "Running to Stand Still", "duration": "4:18" },
-      { "title": "Red Hill Mining Town", "duration": "4:54" },
-      { "title": "In God's Country", "duration": "2:57" },
-      { "title": "Trip Through Your Wires", "duration": "3:33" },
-      { "title": "One Tree Hill", "duration": "5:23" },
-      { "title": "Mothers of the Disappeared", "duration": "5:14" }
+      {
+        "title": "Where the Streets Have No Name",
+        "duration": "5:37"
+      },
+      {
+        "title": "I Still Haven't Found What I'm Looking For",
+        "duration": "4:37"
+      },
+      {
+        "title": "With or Without You",
+        "duration": "4:56"
+      },
+      {
+        "title": "Bullet the Blue Sky",
+        "duration": "4:32"
+      },
+      {
+        "title": "Running to Stand Still",
+        "duration": "4:18"
+      },
+      {
+        "title": "Red Hill Mining Town",
+        "duration": "4:54"
+      },
+      {
+        "title": "In God's Country",
+        "duration": "2:57"
+      },
+      {
+        "title": "Trip Through Your Wires",
+        "duration": "3:33"
+      },
+      {
+        "title": "One Tree Hill",
+        "duration": "5:23"
+      },
+      {
+        "title": "Mothers of the Disappeared",
+        "duration": "5:14"
+      }
     ]
   },
   {
@@ -401,15 +929,42 @@
     "itunesQuery": "Dire Straits Brothers in Arms",
     "review": "Mark Knopfler 不靠拨片、只用指弹就造出了世上最温柔也最锋利的电吉他音色。发烧友试音必备，更是深夜写代码或独处时最耐听的一张唱片。",
     "tracks": [
-      { "title": "So Far Away", "duration": "5:12" },
-      { "title": "Money for Nothing", "duration": "8:26" },
-      { "title": "Walk of Life", "duration": "4:12" },
-      { "title": "Your Latest Trick", "duration": "6:33" },
-      { "title": "Why Worry", "duration": "8:31" },
-      { "title": "Ride Across the River", "duration": "6:58" },
-      { "title": "The Man's Too Strong", "duration": "4:40" },
-      { "title": "One World", "duration": "3:40" },
-      { "title": "Brothers in Arms", "duration": "7:00" }
+      {
+        "title": "So Far Away",
+        "duration": "5:12"
+      },
+      {
+        "title": "Money for Nothing",
+        "duration": "8:26"
+      },
+      {
+        "title": "Walk of Life",
+        "duration": "4:12"
+      },
+      {
+        "title": "Your Latest Trick",
+        "duration": "6:33"
+      },
+      {
+        "title": "Why Worry",
+        "duration": "8:31"
+      },
+      {
+        "title": "Ride Across the River",
+        "duration": "6:58"
+      },
+      {
+        "title": "The Man's Too Strong",
+        "duration": "4:40"
+      },
+      {
+        "title": "One World",
+        "duration": "3:40"
+      },
+      {
+        "title": "Brothers in Arms",
+        "duration": "7:00"
+      }
     ]
   },
   {
@@ -422,17 +977,50 @@
     "itunesQuery": "The Doors 1967",
     "review": "没有贝斯手，只靠风琴低音、迷幻吉他和 Jim Morrison 充满仪式感的吟唱，推开了 60 年代迷幻摇滚的大门。《Light My Fire》和《The End》至今仍带着危险的魔力。",
     "tracks": [
-      { "title": "Break On Through (To the Other Side)", "duration": "2:29" },
-      { "title": "Soul Kitchen", "duration": "3:35" },
-      { "title": "The Crystal Ship", "duration": "2:34" },
-      { "title": "Twentieth Century Fox", "duration": "2:33" },
-      { "title": "Alabama Song (Whisky Bar)", "duration": "3:20" },
-      { "title": "Light My Fire", "duration": "7:06" },
-      { "title": "Back Door Man", "duration": "3:34" },
-      { "title": "I Looked at You", "duration": "2:22" },
-      { "title": "End of the Night", "duration": "2:52" },
-      { "title": "Take It as It Comes", "duration": "2:17" },
-      { "title": "The End", "duration": "11:41" }
+      {
+        "title": "Break On Through (To the Other Side)",
+        "duration": "2:29"
+      },
+      {
+        "title": "Soul Kitchen",
+        "duration": "3:35"
+      },
+      {
+        "title": "The Crystal Ship",
+        "duration": "2:34"
+      },
+      {
+        "title": "Twentieth Century Fox",
+        "duration": "2:33"
+      },
+      {
+        "title": "Alabama Song (Whisky Bar)",
+        "duration": "3:20"
+      },
+      {
+        "title": "Light My Fire",
+        "duration": "7:06"
+      },
+      {
+        "title": "Back Door Man",
+        "duration": "3:34"
+      },
+      {
+        "title": "I Looked at You",
+        "duration": "2:22"
+      },
+      {
+        "title": "End of the Night",
+        "duration": "2:52"
+      },
+      {
+        "title": "Take It as It Comes",
+        "duration": "2:17"
+      },
+      {
+        "title": "The End",
+        "duration": "11:41"
+      }
     ]
   },
   {
@@ -445,15 +1033,538 @@
     "itunesQuery": "崔健 新长征路上的摇滚",
     "review": "中国摇滚的开山第一声呐喊。唢呐、笛子、古筝与电吉他碰撞出前所未有的生命力，《一无所有》《花房姑娘》《假行僧》首首都是写进时代的经典。",
     "tracks": [
-      { "title": "新长征路上的摇滚", "duration": "4:44" },
-      { "title": "不再掩饰", "duration": "5:08" },
-      { "title": "让我睡个好觉", "duration": "4:08" },
-      { "title": "花房姑娘", "duration": "4:52" },
-      { "title": "假行僧", "duration": "4:58" },
-      { "title": "从头再来", "duration": "5:15" },
-      { "title": "出走", "duration": "5:29" },
-      { "title": "一无所有", "duration": "5:38" },
-      { "title": "不是我不明白", "duration": "5:10" }
+      {
+        "title": "新长征路上的摇滚",
+        "duration": "4:44"
+      },
+      {
+        "title": "不再掩饰",
+        "duration": "5:08"
+      },
+      {
+        "title": "让我睡个好觉",
+        "duration": "4:08"
+      },
+      {
+        "title": "花房姑娘",
+        "duration": "4:52"
+      },
+      {
+        "title": "假行僧",
+        "duration": "4:58"
+      },
+      {
+        "title": "从头再来",
+        "duration": "5:15"
+      },
+      {
+        "title": "出走",
+        "duration": "5:29"
+      },
+      {
+        "title": "一无所有",
+        "duration": "5:38"
+      },
+      {
+        "title": "不是我不明白",
+        "duration": "5:10"
+      }
+    ]
+  },
+  {
+    "id": "exile-on-main-st",
+    "title": "Exile on Main St.",
+    "artist": "The Rolling Stones",
+    "year": 1972,
+    "genre": "Blues Rock",
+    "accentColor": "#b45309",
+    "itunesQuery": "The Rolling Stones Exile on Main St.",
+    "review": "在法国南部别墅的地下室里录出来的摇滚圣经。蓝调、福音、乡村与灵魂乐被炖成一锅浑浊又滚烫的浓汤，粗粝得像未经打磨的现场。建议一口气听完双碟，别跳过那些看似散漫的段落——那是它的呼吸。",
+    "tracks": [
+      {
+        "title": "Rocks Off",
+        "duration": "4:32"
+      },
+      {
+        "title": "Rip This Joint",
+        "duration": "2:23"
+      },
+      {
+        "title": "Shake Your Hips",
+        "duration": "2:59"
+      },
+      {
+        "title": "Casino Boogie",
+        "duration": "3:33"
+      },
+      {
+        "title": "Tumbling Dice",
+        "duration": "3:45"
+      },
+      {
+        "title": "Sweet Virginia",
+        "duration": "4:25"
+      },
+      {
+        "title": "Torn and Frayed",
+        "duration": "4:17"
+      },
+      {
+        "title": "Sweet Black Angel",
+        "duration": "2:54"
+      },
+      {
+        "title": "Loving Cup",
+        "duration": "4:23"
+      },
+      {
+        "title": "Happy",
+        "duration": "3:04"
+      },
+      {
+        "title": "Turd on the Run",
+        "duration": "2:37"
+      },
+      {
+        "title": "Ventilator Blues",
+        "duration": "3:24"
+      },
+      {
+        "title": "I Just Want to See His Face",
+        "duration": "2:52"
+      },
+      {
+        "title": "Let It Loose",
+        "duration": "5:17"
+      },
+      {
+        "title": "All Down the Line",
+        "duration": "3:49"
+      },
+      {
+        "title": "Stop Breaking Down",
+        "duration": "4:34"
+      },
+      {
+        "title": "Shine a Light",
+        "duration": "4:14"
+      },
+      {
+        "title": "Soul Survivor",
+        "duration": "3:49"
+      }
+    ]
+  },
+  {
+    "id": "sticky-fingers",
+    "title": "Sticky Fingers",
+    "artist": "The Rolling Stones",
+    "year": 1971,
+    "genre": "Blues Rock",
+    "accentColor": "#57534e",
+    "itunesQuery": "The Rolling Stones Sticky Fingers",
+    "review": "拉链封面出自安迪·沃霍尔之手，音乐则是滚石最精悍的一面：布鲁斯的根基、放克的骚动，还有《Wild Horses》难得的脆弱。建议留意《Can't You Hear Me Knocking》后半段的即兴，松而不散，是乐队功力的证明。",
+    "tracks": [
+      {
+        "title": "Brown Sugar",
+        "duration": "3:51"
+      },
+      {
+        "title": "Sway",
+        "duration": "3:53"
+      },
+      {
+        "title": "Wild Horses",
+        "duration": "5:44"
+      },
+      {
+        "title": "Can’t You Hear Me Knocking",
+        "duration": "7:16"
+      },
+      {
+        "title": "You Gotta Move",
+        "duration": "2:33"
+      },
+      {
+        "title": "Bitch",
+        "duration": "3:38"
+      },
+      {
+        "title": "I Got the Blues",
+        "duration": "3:55"
+      },
+      {
+        "title": "Sister Morphine",
+        "duration": "5:35"
+      },
+      {
+        "title": "Dead Flowers",
+        "duration": "4:05"
+      },
+      {
+        "title": "Moonlight Mile",
+        "duration": "5:55"
+      }
+    ]
+  },
+  {
+    "id": "revolver",
+    "title": "Revolver",
+    "artist": "The Beatles",
+    "year": 1966,
+    "genre": "Psychedelic Rock",
+    "accentColor": "#4b5563",
+    "itunesQuery": "The Beatles Revolver",
+    "review": "披头士从舞台乐队蜕变为录音室艺术家的转折点：弦乐八重奏、倒放磁带、印度西塔琴，全被塞进三分钟的流行歌里。建议戴上耳机按英版原序听完，尤其留意结尾《Tomorrow Never Knows》的单和弦迷幻漩涡。",
+    "tracks": [
+      {
+        "title": "Taxman",
+        "duration": "2:41"
+      },
+      {
+        "title": "Eleanor Rigby",
+        "duration": "2:10"
+      },
+      {
+        "title": "I’m Only Sleeping",
+        "duration": "3:04"
+      },
+      {
+        "title": "Love You To",
+        "duration": "3:03"
+      },
+      {
+        "title": "Here, There and Everywhere",
+        "duration": "2:28"
+      },
+      {
+        "title": "Yellow Submarine",
+        "duration": "2:42"
+      },
+      {
+        "title": "She Said She Said",
+        "duration": "2:39"
+      },
+      {
+        "title": "Good Day Sunshine",
+        "duration": "2:12"
+      },
+      {
+        "title": "And Your Bird Can Sing",
+        "duration": "2:04"
+      },
+      {
+        "title": "For No One",
+        "duration": "2:04"
+      },
+      {
+        "title": "Doctor Robert",
+        "duration": "2:17"
+      },
+      {
+        "title": "I Want to Tell You",
+        "duration": "2:32"
+      },
+      {
+        "title": "Got to Get You Into My Life",
+        "duration": "2:33"
+      },
+      {
+        "title": "Tomorrow Never Knows",
+        "duration": "2:57"
+      }
+    ]
+  },
+  {
+    "id": "hunky-dory",
+    "title": "Hunky Dory",
+    "artist": "David Bowie",
+    "year": 1971,
+    "genre": "Art Rock",
+    "accentColor": "#ca8a04",
+    "itunesQuery": "David Bowie Hunky Dory",
+    "review": "Ziggy 诞生前夜的鲍伊：钢琴驱动的华丽流行乐，藏着《Life on Mars?》这样的宇宙级抒情曲，也藏着他写给沃霍尔与迪伦的致敬信。建议在深夜安静地整张听完，收尾的《The Bewlay Brothers》会让你起鸡皮疙瘩。",
+    "tracks": [
+      {
+        "title": "Changes",
+        "duration": "3:37"
+      },
+      {
+        "title": "Oh! You Pretty Things",
+        "duration": "3:12"
+      },
+      {
+        "title": "Eight Line Poem",
+        "duration": "2:56"
+      },
+      {
+        "title": "Life on Mars?",
+        "duration": "3:54"
+      },
+      {
+        "title": "Kooks",
+        "duration": "2:53"
+      },
+      {
+        "title": "Quicksand",
+        "duration": "5:07"
+      },
+      {
+        "title": "Fill Your Heart",
+        "duration": "3:07"
+      },
+      {
+        "title": "Andy Warhol",
+        "duration": "3:57"
+      },
+      {
+        "title": "Song for Bob Dylan",
+        "duration": "4:12"
+      },
+      {
+        "title": "Queen Bitch",
+        "duration": "3:19"
+      },
+      {
+        "title": "The Bewlay Brothers",
+        "duration": "5:24"
+      }
+    ]
+  },
+  {
+    "id": "the-velvet-underground-and-nico",
+    "title": "The Velvet Underground & Nico",
+    "artist": "The Velvet Underground & Nico",
+    "year": 1967,
+    "genre": "Art Rock",
+    "accentColor": "#eab308",
+    "itunesQuery": "The Velvet Underground & Nico The Velvet Underground & Nico",
+    "review": "当年只卖出几千张，却和沃霍尔的香蕉封面一起定义了地下摇滚：粗粝的噪音、禁忌的题材、Nico 冰一样的嗓音。建议关灯听《Heroin》七分钟的加速与失速——后来几十年的另类音乐都欠它一笔账。",
+    "tracks": [
+      {
+        "title": "Sunday Morning",
+        "duration": "2:58"
+      },
+      {
+        "title": "I’m Waiting for the Man",
+        "duration": "4:42"
+      },
+      {
+        "title": "Femme Fatale",
+        "duration": "2:41"
+      },
+      {
+        "title": "Venus in Furs",
+        "duration": "5:11"
+      },
+      {
+        "title": "Run Run Run",
+        "duration": "4:25"
+      },
+      {
+        "title": "All Tomorrow’s Parties",
+        "duration": "6:02"
+      },
+      {
+        "title": "Heroin",
+        "duration": "7:15"
+      },
+      {
+        "title": "There She Goes Again",
+        "duration": "2:43"
+      },
+      {
+        "title": "I’ll Be Your Mirror",
+        "duration": "2:16"
+      },
+      {
+        "title": "The Black Angel’s Death Song",
+        "duration": "3:14"
+      },
+      {
+        "title": "European Son",
+        "duration": "7:47"
+      }
+    ]
+  },
+  {
+    "id": "highway-61-revisited",
+    "title": "Highway 61 Revisited",
+    "artist": "Bob Dylan",
+    "year": 1965,
+    "genre": "Folk Rock",
+    "accentColor": "#2563eb",
+    "itunesQuery": "Bob Dylan Highway 61 Revisited",
+    "review": "迪伦插上电吉他的宣言书。《Like a Rolling Stone》的风琴一响，流行乐的歌词写作就此被改写；整张专辑像一场开在美国公路上的布鲁斯狂欢。建议从头听到尾，最后十一分钟的《Desolation Row》千万不要快进。",
+    "tracks": [
+      {
+        "title": "Like a Rolling Stone",
+        "duration": "6:13"
+      },
+      {
+        "title": "Tombstone Blues",
+        "duration": "5:58"
+      },
+      {
+        "title": "It Takes a Lot to Laugh, It Takes a Train to Cry",
+        "duration": "4:09"
+      },
+      {
+        "title": "From a Buick 6",
+        "duration": "3:19"
+      },
+      {
+        "title": "Ballad of a Thin Man",
+        "duration": "5:59"
+      },
+      {
+        "title": "Queen Jane Approximately",
+        "duration": "5:31"
+      },
+      {
+        "title": "Highway 61 Revisited",
+        "duration": "3:30"
+      },
+      {
+        "title": "Just Like Tom Thumb’s Blues",
+        "duration": "5:32"
+      },
+      {
+        "title": "Desolation Row",
+        "duration": "11:20"
+      }
+    ]
+  },
+  {
+    "id": "are-you-experienced",
+    "title": "Are You Experienced",
+    "artist": "The Jimi Hendrix Experience",
+    "year": 1967,
+    "genre": "Psychedelic Rock",
+    "accentColor": "#9333ea",
+    "itunesQuery": "The Jimi Hendrix Experience Are You Experienced",
+    "review": "吉他英雄的降临现场：Hendrix 用反馈、哇音和录音室把戏把布鲁斯炸成迷幻的星尘。此处采用英版原始曲序，以《Foxy Lady》开场，不含美版后来加塞的单曲。建议音量开大，整张一次听完，不要切歌。",
+    "tracks": [
+      {
+        "title": "Foxy Lady",
+        "duration": "3:18"
+      },
+      {
+        "title": "Manic Depression",
+        "duration": "3:42"
+      },
+      {
+        "title": "Red House",
+        "duration": "3:45"
+      },
+      {
+        "title": "Can You See Me",
+        "duration": "2:34"
+      },
+      {
+        "title": "Love or Confusion",
+        "duration": "3:13"
+      },
+      {
+        "title": "I Don’t Live Today",
+        "duration": "3:54"
+      },
+      {
+        "title": "May This Be Love",
+        "duration": "3:11"
+      },
+      {
+        "title": "Fire",
+        "duration": "2:46"
+      },
+      {
+        "title": "Third Stone From the Sun",
+        "duration": "6:41"
+      },
+      {
+        "title": "Remember",
+        "duration": "2:46"
+      },
+      {
+        "title": "Are You Experienced?",
+        "duration": "4:11"
+      }
+    ]
+  },
+  {
+    "id": "poetics-between-montparnasse-and-mongkok",
+    "title": "介乎法国与旺角的诗意",
+    "artist": "My Little Airport",
+    "year": 2009,
+    "genre": "Indie Pop",
+    "accentColor": "#3b82f6",
+    "itunesQuery": "My Little Airport 介乎法國與旺角的詩意",
+    "review": "My Little Airport 最具代表性的小品集：法式香颂的优雅撞上旺角的市井日常，儿歌般的旋律里藏着对香港社会的温柔吐槽。建议配合歌词听，听到《邊一個發明了返工》时，你大概会笑着叹一口气。",
+    "tracks": [
+      {
+        "title": "介乎法國與旺角的詩意",
+        "duration": "2:27"
+      },
+      {
+        "title": "濕濕的夢",
+        "duration": "3:02"
+      },
+      {
+        "title": "北歐是我們的死亡終站",
+        "duration": "2:09"
+      },
+      {
+        "title": "窮人賣屎忽",
+        "duration": "0:43"
+      },
+      {
+        "title": "社會主義青年",
+        "duration": "2:22"
+      },
+      {
+        "title": "荔枝角網球場宣言",
+        "duration": "1:06"
+      },
+      {
+        "title": "瓜分林瑞麟三十萬薪金",
+        "duration": "2:13"
+      },
+      {
+        "title": "藍白紅風格練習",
+        "duration": "0:58"
+      },
+      {
+        "title": "my little st. valentine's day",
+        "duration": "2:14"
+      },
+      {
+        "title": "失業抗爭歌",
+        "duration": "1:57"
+      },
+      {
+        "title": "給face雜誌的記者ivy",
+        "duration": "1:57"
+      },
+      {
+        "title": "when the party is over, i miss my dear porn star",
+        "duration": "2:36"
+      },
+      {
+        "title": "浪漫九龍塘",
+        "duration": "2:06"
+      },
+      {
+        "title": "阿波馬草結婚了",
+        "duration": "1:38"
+      },
+      {
+        "title": "邊一個發明了返工",
+        "duration": "2:58"
+      },
+      {
+        "title": "donald tsang, please die",
+        "duration": "1:53"
+      }
     ]
   }
 ]
