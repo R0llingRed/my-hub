@@ -13,6 +13,7 @@ import {
   getDailyAlbumIndex,
   getDailyItemIndex,
   getShanghaiDate,
+  isSameNbaTeam,
   startClock,
 } from './common.js';
 
@@ -355,7 +356,7 @@ async function initNbaWidget() {
 function isFavGame(ev, favAbbr) {
   if (!favAbbr) return false;
   const comps = ev.competitions?.[0]?.competitors || [];
-  return comps.some((c) => c.team?.abbreviation === favAbbr);
+  return comps.some((c) => isSameNbaTeam(c.team?.abbreviation, favAbbr));
 }
 
 // 9. 本地草稿便签（localStorage）

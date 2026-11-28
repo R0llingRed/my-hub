@@ -127,12 +127,6 @@
       color: var(--text-muted);
     }
 
-    .spoiler-hidden {
-      filter: blur(7px);
-      user-select: none;
-      opacity: 0.45;
-    }
-
     .game-leader {
       font-size: 12px;
       color: var(--text-secondary);
@@ -212,6 +206,29 @@
     }
 
     /* Box Score Drawer Content */
+    .drawer-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .drawer-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .drawer-live-dot {
+      color: var(--emerald);
+      font-weight: 600;
+    }
+
     .drawer-matchup {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
@@ -386,11 +403,15 @@
   <div class="drawer-backdrop" id="boxscoreDrawer" role="dialog" aria-modal="true" aria-label="比赛技术统计">
     <div class="drawer-panel">
       <div class="drawer-header">
-        <div>
+        <div style="min-width:0;">
           <div class="card-kicker">NBA Box Score · 站内技术统计</div>
           <div id="drawerTitle" style="font-size:15px;font-weight:600;margin-top:2px;">加载中...</div>
+          <div id="drawerMeta" class="drawer-meta"></div>
         </div>
-        <button class="btn btn-sm" id="btnCloseDrawer">✕ 关闭</button>
+        <div class="drawer-header-actions">
+          <button class="btn btn-sm" id="btnRefreshDrawer" title="立即刷新技术统计">↻ 刷新</button>
+          <button class="btn btn-sm" id="btnCloseDrawer">✕ 关闭</button>
+        </div>
       </div>
       <div class="drawer-body" id="drawerBody"></div>
     </div>

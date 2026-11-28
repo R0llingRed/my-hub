@@ -279,6 +279,34 @@ export function findTrackPreview(trackTitle, previewsMap) {
   return null;
 }
 
+const NBA_TEAM_ABBR_ALIASES = {
+  GS: 'GSW',
+  GSW: 'GSW',
+  NY: 'NYK',
+  NYK: 'NYK',
+  SA: 'SAS',
+  SAS: 'SAS',
+  NO: 'NOP',
+  NOP: 'NOP',
+  UTAH: 'UTA',
+  UTA: 'UTA',
+  WSH: 'WAS',
+  WAS: 'WAS',
+};
+
+/**
+ * 归一化 NBA 球队缩写（兼容 ESPN 的 GS/NY/SA/NO/UTAH/WSH 与标准三字母缩写）
+ */
+export function normalizeNbaTeamAbbr(abbr) {
+  const key = String(abbr || '').trim().toUpperCase();
+  return NBA_TEAM_ABBR_ALIASES[key] || key;
+}
+
+export function isSameNbaTeam(abbrA, abbrB) {
+  if (!abbrA || !abbrB) return false;
+  return normalizeNbaTeamAbbr(abbrA) === normalizeNbaTeamAbbr(abbrB);
+}
+
 /**
  * 拉取单个 ESPN 日期（美东日历）的赛程
  */

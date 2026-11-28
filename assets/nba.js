@@ -6,6 +6,7 @@ import {
   fetchNbaSummary,
   formatShanghaiEventTime,
   getShanghaiDate,
+  isSameNbaTeam,
   startClock,
 } from './common.js';
 
@@ -24,19 +25,44 @@ const btnSpoiler = document.getElementById('btnSpoiler');
 
 const boxscoreDrawer = document.getElementById('boxscoreDrawer');
 const drawerTitle = document.getElementById('drawerTitle');
+const drawerMeta = document.getElementById('drawerMeta');
 const drawerBody = document.getElementById('drawerBody');
+const btnRefreshDrawer = document.getElementById('btnRefreshDrawer');
 const btnCloseDrawer = document.getElementById('btnCloseDrawer');
+
+const PRE_GAME_WAKE_LEAD_MS = 5 * 60 * 1000;
+const PRE_GAME_POLL_MAX_AFTER_MS = 2 * 60 * 60 * 1000;
+const MAX_WAKE_WAIT_MS = 12 * 60 * 60 * 1000;
 
 let currentView = 'games'; // 'games' | 'standings'
 let currentOffset = 0;
 let spoilerFree = localStorage.getItem('nba_spoiler_free') === '1';
 let favTeam = localStorage.getItem('nba_fav_team') ?? SITE_CONFIG.nba.defaultFavoriteTeam;
 let refreshIntervalSec = Number(localStorage.getItem('nba_refresh_sec') ?? '15');
+if (!Number.isFinite(refreshIntervalSec) || refreshIntervalSec < 0) {
+  refreshIntervalSec = 15;
+}
 let cachedEvents = [];
 let cachedStandings = null;
 let lastUpdatedStr = '';
 let refreshTimer = null;
+let gamesWakeTimer = null;
 let isFetching = false;
+let gamesRequestId = 0;
+let standingsRequestId = 0;
+
+let activeDrawerEventId = null;
+let drawerGameState = null; // 'pre' | 'in' | 'post' | null
+let drawerGameTipoffMs = null;
+let drawerRevealed = false;
+let drawerConfirmedSpoiler = false;
+let drawerActiveTeamIdx = 0;
+let drawerActiveTeamKey = null;
+let drawerLastUpdatedStr = '';
+let drawerRefreshTimer = null;
+let drawerWakeTimer = null;
+let isDrawerFetching = false;
+let drawerSessionId = 0;
 
 favTeamSelect.value = favTeam;
 autoRefreshSelect.value = String(refreshIntervalSec);
@@ -49,21 +75,42 @@ function updateSpoilerBtn() {
 
 function isFavGame(ev) {
   if (!favTeam) return false;
-  return (ev.competitions?.[0]?.competitors || []).some((c) => c.team?.abbreviation === favTeam);
+  return (ev.competitions?.[0]?.competitors || []).some((c) => isSameNbaTeam(c.team?.abbreviation, favTeam));
 }
 
 function hasLiveGame(events) {
   return events.some((ev) => ev.status?.type?.state === 'in');
 }
 
+function isNearOrPastTipoff(tipoffMs = drawerGameTipoffMs) {
+  if (!Number.isFinite(tipoffMs)) return false;
+  const now = Date.now();
+  return now >= tipoffMs - PRE_GAME_WAKE_LEAD_MS && now <= tipoffMs + PRE_GAME_POLL_MAX_AFTER_MS;
+}
+
+function isGameImminent(ev) {
+  if (ev?.status?.type?.state !== 'pre' || !ev?.date) return false;
+  return isNearOrPastTipoff(new Date(ev.date).getTime());
+}
+
+function hasUpcomingGame(events) {
+  return events.some((ev) => ev.status?.type?.state === 'pre');
+}
+
 function renderGames() {
   const sh = getShanghaiDate(currentOffset);
   const liveNow = hasLiveGame(cachedEvents);
+  const imminentNow = currentOffset === 0 && cachedEvents.some(isGameImminent);
+  const upcomingNow = currentOffset === 0 && hasUpcomingGame(cachedEvents);
   const autoTag =
     refreshIntervalSec > 0
       ? liveNow
         ? ` · 自动刷新 ${refreshIntervalSec}s`
-        : ` · 自动刷新待机（开赛后生效）`
+        : imminentNow
+        ? ` · 等待开赛 · 自动刷新 ${refreshIntervalSec}s`
+        : upcomingNow
+        ? ` · 自动刷新待机（开赛前生效）`
+        : ''
       : '';
   const updatedTag = lastUpdatedStr ? ` · 更新于 ${lastUpdatedStr}` : '';
 
@@ -101,8 +148,8 @@ function renderGames() {
 
       const awayScore = Number(away?.score ?? 0);
       const homeScore = Number(home?.score ?? 0);
-      const awayClass = state === 'post' ? (awayScore >= homeScore ? 'winner' : 'loser') : '';
-      const homeClass = state === 'post' ? (homeScore >= awayScore ? 'winner' : 'loser') : '';
+      const awayClass = state === 'post' && !spoilerFree ? (awayScore >= homeScore ? 'winner' : 'loser') : '';
+      const homeClass = state === 'post' && !spoilerFree ? (homeScore >= awayScore ? 'winner' : 'loser') : '';
 
       const tipoff = formatShanghaiEventTime(ev.date);
       const statusHtml =
@@ -216,7 +263,7 @@ function renderStandings() {
           const pct = getEntryStat(entry, 'winPercent').display;
           const gb = getEntryStat(entry, 'gamesBehind').display;
           const diff = getEntryStat(entry, 'differential').display;
-          const isFav = favTeam && team.abbreviation === favTeam;
+          const isFav = Boolean(favTeam && isSameNbaTeam(team.abbreviation, favTeam));
           const seedClass = seed <= 6 ? 'seed-playoff' : seed <= 10 ? 'seed-playin' : '';
 
           return `
@@ -265,63 +312,261 @@ function renderStandings() {
 }
 
 async function loadStandings() {
+  const reqId = ++standingsRequestId;
   boardSubtitle.textContent = '正在拉取东西部战绩榜...';
   standingsGrid.innerHTML = `<div class="card empty-state" style="grid-column:1 / -1;">Fetching NBA Standings...</div>`;
   try {
-    cachedStandings = await fetchNbaStandings();
-    renderStandings();
+    const data = await fetchNbaStandings();
+    if (reqId !== standingsRequestId) return;
+    cachedStandings = data;
+    if (currentView === 'standings') {
+      renderStandings();
+    }
   } catch (err) {
+    if (reqId !== standingsRequestId || currentView !== 'standings') return;
+    boardSubtitle.textContent = '战绩榜加载失败';
     standingsGrid.innerHTML = `<div class="card empty-state" style="grid-column:1 / -1;">加载战绩榜失败：${escapeHtml(err.message)}</div>`;
   }
 }
 
 // ==================== 站内 Box Score 抽屉 ====================
+function isDrawerOpen() {
+  return boxscoreDrawer.classList.contains('open');
+}
+
+function shouldAutoRefreshDrawer() {
+  if (refreshIntervalSec <= 0) return false;
+  if (!isDrawerOpen() || !activeDrawerEventId || !drawerRevealed) return false;
+  if (drawerGameState === 'in') return true;
+  if (drawerGameState === 'pre' && isNearOrPastTipoff(drawerGameTipoffMs)) return true;
+  return false;
+}
+
+function stopDrawerAutoRefresh() {
+  if (drawerRefreshTimer) {
+    clearTimeout(drawerRefreshTimer);
+    drawerRefreshTimer = null;
+  }
+  if (drawerWakeTimer) {
+    clearTimeout(drawerWakeTimer);
+    drawerWakeTimer = null;
+  }
+}
+
+function setDrawerRefreshButtonState(loading) {
+  if (!btnRefreshDrawer) return;
+  btnRefreshDrawer.disabled = loading;
+  btnRefreshDrawer.textContent = loading ? '↻ 刷新中...' : '↻ 刷新';
+}
+
+function updateDrawerMeta({ error = false } = {}) {
+  if (!drawerMeta) return;
+  if (!drawerRevealed) {
+    drawerMeta.textContent = '防剧透已开启 · 确认后加载数据';
+    return;
+  }
+
+  const updatedPart = drawerLastUpdatedStr ? `更新于 ${escapeHtml(drawerLastUpdatedStr)}` : '';
+  const errorPart = error
+    ? shouldAutoRefreshDrawer()
+      ? '本次刷新失败，稍后自动重试'
+      : '本次刷新失败，请点击重试'
+    : '';
+  const parts = [];
+
+  if (drawerGameState === 'in') {
+    if (refreshIntervalSec > 0) {
+      parts.push(`<span class="drawer-live-dot">● 自动刷新 ${refreshIntervalSec}s</span>`);
+    } else {
+      parts.push('自动刷新已关闭');
+    }
+  } else if (drawerGameState === 'pre') {
+    if (refreshIntervalSec > 0 && isNearOrPastTipoff(drawerGameTipoffMs)) {
+      parts.push(`<span class="drawer-live-dot">● 等待开赛 · 自动刷新 ${refreshIntervalSec}s</span>`);
+    } else if (refreshIntervalSec > 0) {
+      parts.push('未开赛 · 开赛前自动刷新');
+    } else {
+      parts.push('未开赛 · 自动刷新已关闭');
+    }
+  } else if (drawerGameState === 'post') {
+    parts.push('比赛已结束');
+  } else if (!updatedPart) {
+    parts.push('正在拉取技术统计...');
+  }
+
+  if (updatedPart) parts.push(updatedPart);
+  if (errorPart) parts.push(`<span style="color:#fda4af;">${errorPart}</span>`);
+
+  drawerMeta.innerHTML = parts.join('<span>·</span>');
+}
+
+function scheduleDrawerAutoRefresh() {
+  stopDrawerAutoRefresh();
+  if (!isDrawerOpen() || !activeDrawerEventId || !drawerRevealed || refreshIntervalSec <= 0) {
+    return;
+  }
+
+  const scheduledSession = drawerSessionId;
+  if (shouldAutoRefreshDrawer()) {
+    drawerRefreshTimer = setTimeout(() => {
+      drawerRefreshTimer = null;
+      if (scheduledSession !== drawerSessionId || !shouldAutoRefreshDrawer()) return;
+      if (document.hidden) return;
+      loadAndRenderBoxscore(activeDrawerEventId, { silent: true });
+    }, refreshIntervalSec * 1000);
+    return;
+  }
+
+  if (drawerGameState === 'pre' && Number.isFinite(drawerGameTipoffMs)) {
+    const waitMs = drawerGameTipoffMs - PRE_GAME_WAKE_LEAD_MS - Date.now();
+    if (waitMs > 0 && waitMs <= MAX_WAKE_WAIT_MS) {
+      drawerWakeTimer = setTimeout(() => {
+        drawerWakeTimer = null;
+        if (scheduledSession !== drawerSessionId || !isDrawerOpen() || !drawerRevealed) return;
+        updateDrawerMeta();
+        if (document.hidden) return;
+        loadAndRenderBoxscore(activeDrawerEventId, { silent: true });
+      }, waitMs);
+    }
+  }
+}
+
+function showDrawerSpoilerShield(eventId) {
+  stopDrawerAutoRefresh();
+  drawerRevealed = false;
+  drawerConfirmedSpoiler = false;
+  btnRefreshDrawer.style.display = 'none';
+  updateDrawerMeta();
+  drawerBody.innerHTML = `
+    <div class="card" style="text-align:center;padding:36px 20px;">
+      <div style="font-size:28px;margin-bottom:10px;">🙈</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:8px;">当前已开启「防剧透模式」</div>
+      <p style="font-size:13px;color:var(--text-secondary);margin:0 0 18px;">技术统计会直接显示本场实时/终场比分与球员数据。</p>
+      <button class="btn btn-primary" id="btnRevealBoxscore">查看本场数据（临时取消防剧透）</button>
+    </div>
+  `;
+  document.getElementById('btnRevealBoxscore').addEventListener('click', () => {
+    drawerRevealed = true;
+    drawerConfirmedSpoiler = true;
+    btnRefreshDrawer.style.display = '';
+    loadAndRenderBoxscore(eventId);
+  });
+}
+
 function closeDrawer() {
+  stopDrawerAutoRefresh();
+  drawerSessionId += 1;
+  activeDrawerEventId = null;
+  drawerGameState = null;
+  drawerGameTipoffMs = null;
+  drawerRevealed = false;
+  drawerConfirmedSpoiler = false;
+  drawerActiveTeamIdx = 0;
+  drawerActiveTeamKey = null;
+  drawerLastUpdatedStr = '';
+  isDrawerFetching = false;
+  setDrawerRefreshButtonState(false);
   boxscoreDrawer.classList.remove('open');
   document.body.style.overflow = '';
 }
+
+btnRefreshDrawer.addEventListener('click', () => {
+  if (!activeDrawerEventId || !drawerRevealed) return;
+  loadAndRenderBoxscore(activeDrawerEventId, {
+    silent: false,
+    preserveContent: Boolean(drawerLastUpdatedStr),
+  });
+});
 
 btnCloseDrawer.addEventListener('click', closeDrawer);
 boxscoreDrawer.addEventListener('click', (e) => {
   if (e.target === boxscoreDrawer) closeDrawer();
 });
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && boxscoreDrawer.classList.contains('open')) {
+  if (e.key === 'Escape' && isDrawerOpen()) {
     closeDrawer();
   }
 });
 
 async function openBoxScoreDrawer(eventId, matchup, state) {
+  stopDrawerAutoRefresh();
+  drawerSessionId += 1;
+  activeDrawerEventId = eventId;
+  drawerGameState = state || null;
+  const matchedEvent = cachedEvents.find((ev) => String(ev.id) === String(eventId));
+  drawerGameTipoffMs = matchedEvent?.date ? new Date(matchedEvent.date).getTime() : null;
+  drawerActiveTeamIdx = 0;
+  drawerActiveTeamKey = null;
+  drawerLastUpdatedStr = '';
+  isDrawerFetching = false;
+  setDrawerRefreshButtonState(false);
+
   drawerTitle.textContent = matchup || '比赛技术统计';
+  drawerBody.scrollTop = 0;
   boxscoreDrawer.classList.add('open');
   document.body.style.overflow = 'hidden';
 
   if (spoilerFree && state !== 'pre') {
-    drawerBody.innerHTML = `
-      <div class="card" style="text-align:center;padding:36px 20px;">
-        <div style="font-size:28px;margin-bottom:10px;">🙈</div>
-        <div style="font-size:15px;font-weight:600;margin-bottom:8px;">当前已开启「防剧透模式」</div>
-        <p style="font-size:13px;color:var(--text-secondary);margin:0 0 18px;">技术统计会直接显示本场实时/终场比分与球员数据。</p>
-        <button class="btn btn-primary" id="btnRevealBoxscore">查看本场数据（临时取消防剧透）</button>
-      </div>
-    `;
-    document.getElementById('btnRevealBoxscore').addEventListener('click', () => {
-      loadAndRenderBoxscore(eventId);
-    });
+    showDrawerSpoilerShield(eventId);
     return;
   }
 
+  drawerRevealed = true;
+  drawerConfirmedSpoiler = !spoilerFree;
+  btnRefreshDrawer.style.display = '';
   await loadAndRenderBoxscore(eventId);
 }
 
-async function loadAndRenderBoxscore(eventId) {
-  drawerBody.innerHTML = `<div style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted);padding:32px 0;text-align:center;">正在拉取完整 Box Score...</div>`;
+async function loadAndRenderBoxscore(eventId, { silent = false, preserveContent = false } = {}) {
+  if (!eventId || !isDrawerOpen() || activeDrawerEventId !== eventId || !drawerRevealed) return;
+  if (silent && isDrawerFetching) return;
+
+  stopDrawerAutoRefresh();
+  if (!silent) {
+    drawerSessionId += 1;
+  }
+  const reqSession = drawerSessionId;
+  isDrawerFetching = true;
+
+  if (!silent) {
+    setDrawerRefreshButtonState(true);
+    if (!preserveContent) {
+      updateDrawerMeta();
+      drawerBody.innerHTML = `<div style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted);padding:32px 0;text-align:center;">正在拉取完整 Box Score...</div>`;
+    }
+  }
 
   try {
     const data = await fetchNbaSummary(eventId);
+    if (reqSession !== drawerSessionId || !isDrawerOpen() || activeDrawerEventId !== eventId) return;
+
+    const fetchedState = data.header?.competitions?.[0]?.status?.type?.state || null;
+    if (spoilerFree && !drawerConfirmedSpoiler && !drawerLastUpdatedStr && fetchedState && fetchedState !== 'pre') {
+      drawerGameState = fetchedState;
+      showDrawerSpoilerShield(eventId);
+      return;
+    }
+
+    const prevState = drawerGameState;
+    drawerLastUpdatedStr = getShanghaiDate(0).timeStr;
     renderBoxscoreBody(data);
+    updateDrawerMeta();
+
+    if (prevState && drawerGameState && prevState !== drawerGameState && currentView === 'games') {
+      loadGames(currentOffset, { silent: true });
+    }
   } catch (err) {
-    drawerBody.innerHTML = `<div style="color:#fda4af;padding:24px 0;text-align:center;">暂无法加载技术统计：${escapeHtml(err.message)}</div>`;
+    if (reqSession !== drawerSessionId || !isDrawerOpen() || activeDrawerEventId !== eventId) return;
+    if (!silent && !preserveContent) {
+      drawerBody.innerHTML = `<div style="color:#fda4af;padding:24px 0;text-align:center;">暂无法加载技术统计：${escapeHtml(err.message)}</div>`;
+    }
+    updateDrawerMeta({ error: true });
+  } finally {
+    if (reqSession === drawerSessionId) {
+      isDrawerFetching = false;
+      setDrawerRefreshButtonState(false);
+      scheduleDrawerAutoRefresh();
+    }
   }
 }
 
@@ -331,12 +576,23 @@ function getTeamStatValue(teamStatsArr, key) {
 }
 
 function renderBoxscoreBody(data) {
+  const prevScrollTop = drawerBody.scrollTop;
+  const prevBoxScrollLefts = Array.from(drawerBody.querySelectorAll('.box-scroll')).map((el) => el.scrollLeft);
+
   const comp = data.header?.competitions?.[0];
   const competitors = comp?.competitors || [];
   const away = competitors.find((c) => c.homeAway === 'away') || competitors[0];
   const home = competitors.find((c) => c.homeAway === 'home') || competitors[1];
-  const state = comp?.status?.type?.state;
+  const state = comp?.status?.type?.state || null;
   const statusText = comp?.status?.type?.shortDetail || comp?.status?.type?.description || '';
+
+  drawerGameState = state;
+  if (comp?.date) {
+    const tipoffMs = new Date(comp.date).getTime();
+    if (Number.isFinite(tipoffMs)) {
+      drawerGameTipoffMs = tipoffMs;
+    }
+  }
 
   drawerTitle.textContent = `${away?.team?.abbreviation || 'AWY'} @ ${home?.team?.abbreviation || 'HME'} · ${statusText}`;
 
@@ -365,13 +621,18 @@ function renderBoxscoreBody(data) {
   if (state === 'pre' || !(data.boxscore?.players || []).length) {
     const tipoff = formatShanghaiEventTime(comp?.date);
     const venue = data.gameInfo?.venue?.fullName || '';
+    const emptyTip =
+      state === 'in'
+        ? '比赛已开始，正在等待单节比分与球员技术统计同步...'
+        : '比赛尚未开始，开赛后将展示单节比分与完整球员技术统计';
     drawerBody.innerHTML = `
       ${matchupHtml}
       <div class="card" style="text-align:center;padding:32px 18px;">
-        <div style="font-size:14px;margin-bottom:6px;">比赛尚未开始，开赛后将展示单节比分与完整球员技术统计</div>
+        <div style="font-size:14px;margin-bottom:6px;">${emptyTip}</div>
         <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">上海时间 ${tipoff.mdhm}${venue ? ` · ${escapeHtml(venue)}` : ''}</div>
       </div>
     `;
+    drawerBody.scrollTop = prevScrollTop;
     return;
   }
 
@@ -411,8 +672,10 @@ function renderBoxscoreBody(data) {
 
   // 球队命中率与关键项对比
   const teamBoxes = data.boxscore?.teams || [];
-  const awayBox = teamBoxes.find((t) => t.team?.id === away?.id) || teamBoxes[0];
-  const homeBox = teamBoxes.find((t) => t.team?.id === home?.id) || teamBoxes[1];
+  const awayTeamId = away?.team?.id ?? away?.id;
+  const homeTeamId = home?.team?.id ?? home?.id;
+  const awayBox = teamBoxes.find((t) => awayTeamId != null && String(t.team?.id) === String(awayTeamId)) || teamBoxes[0];
+  const homeBox = teamBoxes.find((t) => homeTeamId != null && String(t.team?.id) === String(homeTeamId)) || teamBoxes[1];
   const statPairs = [
     ['投篮命中率', 'fieldGoalPct', '%'],
     ['三分命中率', 'threePointFieldGoalPct', '%'],
@@ -421,6 +684,12 @@ function renderBoxscoreBody(data) {
     ['助攻', 'assists', ''],
     ['失误', 'turnovers', ''],
   ];
+
+  const formatStatWithSuffix = (val, suffix) => {
+    const text = String(val ?? '-');
+    if (text === '-' || !suffix || text.endsWith(suffix)) return escapeHtml(text);
+    return `${escapeHtml(text)}${suffix}`;
+  };
 
   const teamCompareHtml = `
     <div class="card-kicker">球队核心对比 · Team Stats</div>
@@ -433,7 +702,7 @@ function renderBoxscoreBody(data) {
             <div class="team-stat-cell">
               <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">${label}</div>
               <div style="font-size:13px;font-weight:600;">
-                ${escapeHtml(av)}${av !== '-' ? suffix : ''} <span style="color:var(--text-muted);">vs</span> ${escapeHtml(hv)}${hv !== '-' ? suffix : ''}
+                ${formatStatWithSuffix(av, suffix)} <span style="color:var(--text-muted);">vs</span> ${formatStatWithSuffix(hv, suffix)}
               </div>
             </div>
           `;
@@ -445,17 +714,20 @@ function renderBoxscoreBody(data) {
   // 球员数据表（带主客队切换）
   const playersTeams = data.boxscore?.players || [];
   const desiredCols = ['MIN', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'FG', '3PT', '+/-'];
+  const getTeamTabKey = (pt, idx) => String(pt?.team?.id || pt?.team?.abbreviation || idx);
 
   function renderPlayerTable(teamIdx) {
     const teamBlock = playersTeams[teamIdx];
     const statBlock = teamBlock?.statistics?.[0];
-    if (!statBlock) return '<div style="padding:16px;color:var(--text-muted);">暂无球员统计</div>';
+    const athletes = statBlock?.athletes || [];
+    if (!statBlock || !athletes.length) {
+      return '<div style="padding:16px;color:var(--text-muted);text-align:center;">暂无球员统计，稍后自动同步</div>';
+    }
     const labels = statBlock.labels || [];
     const colIndices = desiredCols
       .map((name) => ({ name, idx: labels.indexOf(name) }))
       .filter((c) => c.idx !== -1);
 
-    const athletes = statBlock.athletes || [];
     const starters = athletes.filter((a) => a.starter);
     const bench = athletes.filter((a) => !a.starter);
 
@@ -506,6 +778,19 @@ function renderBoxscoreBody(data) {
     `;
   }
 
+  if (drawerActiveTeamKey != null) {
+    const matchedIdx = playersTeams.findIndex((pt, idx) => getTeamTabKey(pt, idx) === drawerActiveTeamKey);
+    if (matchedIdx !== -1) {
+      drawerActiveTeamIdx = matchedIdx;
+    }
+  }
+  if (drawerActiveTeamIdx < 0 || drawerActiveTeamIdx >= playersTeams.length) {
+    drawerActiveTeamIdx = 0;
+  }
+  if (playersTeams[drawerActiveTeamIdx]) {
+    drawerActiveTeamKey = getTeamTabKey(playersTeams[drawerActiveTeamIdx], drawerActiveTeamIdx);
+  }
+
   drawerBody.innerHTML = `
     ${matchupHtml}
     ${linescoreHtml}
@@ -516,26 +801,59 @@ function renderBoxscoreBody(data) {
         ${playersTeams
           .map(
             (pt, i) =>
-              `<button class="qotd-tab ${i === 0 ? 'active' : ''}" data-box-team="${i}">${escapeHtml(pt.team?.abbreviation || `Team ${i + 1}`)}</button>`
+              `<button class="qotd-tab ${i === drawerActiveTeamIdx ? 'active' : ''}" data-box-team="${i}">${escapeHtml(pt.team?.abbreviation || `Team ${i + 1}`)}</button>`
           )
           .join('')}
       </div>
     </div>
-    <div id="playerBoxContainer">${renderPlayerTable(0)}</div>
+    <div id="playerBoxContainer">${renderPlayerTable(drawerActiveTeamIdx)}</div>
   `;
+
+  drawerBody.scrollTop = prevScrollTop;
+  drawerBody.querySelectorAll('.box-scroll').forEach((el, idx) => {
+    if (prevBoxScrollLefts[idx] != null) {
+      el.scrollLeft = prevBoxScrollLefts[idx];
+    }
+  });
 
   drawerBody.querySelectorAll('[data-box-team]').forEach((tab) => {
     tab.addEventListener('click', () => {
       drawerBody.querySelectorAll('[data-box-team]').forEach((t) => t.classList.remove('active'));
       tab.classList.add('active');
-      document.getElementById('playerBoxContainer').innerHTML = renderPlayerTable(Number(tab.dataset.boxTeam));
+      drawerActiveTeamIdx = Number(tab.dataset.boxTeam);
+      drawerActiveTeamKey = getTeamTabKey(playersTeams[drawerActiveTeamIdx], drawerActiveTeamIdx);
+      document.getElementById('playerBoxContainer').innerHTML = renderPlayerTable(drawerActiveTeamIdx);
     });
   });
 }
 
 // ==================== 加载与视图控制 ====================
+function shouldAutoRefreshGames() {
+  if (refreshIntervalSec <= 0 || currentView !== 'games') return false;
+  if (hasLiveGame(cachedEvents)) return true;
+  if (currentOffset === 0 && cachedEvents.some(isGameImminent)) return true;
+  return false;
+}
+
+function stopGamesAutoRefresh() {
+  if (refreshTimer) {
+    clearTimeout(refreshTimer);
+    refreshTimer = null;
+  }
+  if (gamesWakeTimer) {
+    clearTimeout(gamesWakeTimer);
+    gamesWakeTimer = null;
+  }
+}
+
 async function loadGames(offset, { silent = false } = {}) {
-  if (isFetching) return;
+  if (silent && isFetching) return;
+
+  stopGamesAutoRefresh();
+  if (!silent) {
+    gamesRequestId += 1;
+  }
+  const reqId = gamesRequestId;
   isFetching = true;
   currentOffset = offset;
   const sh = getShanghaiDate(offset);
@@ -551,12 +869,13 @@ async function loadGames(offset, { silent = false } = {}) {
 
   try {
     const data = await fetchNbaScoreboardByShanghaiOffset(offset);
+    if (reqId !== gamesRequestId) return;
     cachedEvents = data.events || [];
     lastUpdatedStr = getShanghaiDate(0).timeStr;
     if (currentView === 'games') renderGames();
-    scheduleAutoRefresh();
   } catch (err) {
-    if (!silent) {
+    if (reqId !== gamesRequestId) return;
+    if (!silent && currentView === 'games') {
       boardSubtitle.textContent = `加载失败`;
       gamesGrid.innerHTML = `
         <div class="card empty-state">
@@ -566,22 +885,49 @@ async function loadGames(offset, { silent = false } = {}) {
       `;
     }
   } finally {
-    isFetching = false;
+    if (reqId === gamesRequestId) {
+      isFetching = false;
+      scheduleAutoRefresh();
+    }
   }
 }
 
 function scheduleAutoRefresh() {
-  if (refreshTimer) {
-    clearInterval(refreshTimer);
-    refreshTimer = null;
-  }
-  if (refreshIntervalSec <= 0 || currentOffset !== 0 || currentView !== 'games') return;
+  stopGamesAutoRefresh();
+  if (refreshIntervalSec <= 0 || currentView !== 'games') return;
 
-  refreshTimer = setInterval(() => {
-    if (document.hidden) return;
-    if (!hasLiveGame(cachedEvents)) return;
-    loadGames(currentOffset, { silent: true });
-  }, refreshIntervalSec * 1000);
+  const scheduledReqId = gamesRequestId;
+  if (shouldAutoRefreshGames()) {
+    refreshTimer = setTimeout(() => {
+      refreshTimer = null;
+      if (scheduledReqId !== gamesRequestId || !shouldAutoRefreshGames()) return;
+      if (document.hidden) return;
+      loadGames(currentOffset, { silent: true });
+    }, refreshIntervalSec * 1000);
+    return;
+  }
+
+  if (currentOffset === 0) {
+    const now = Date.now();
+    let earliestWait = Infinity;
+    for (const ev of cachedEvents) {
+      if (ev?.status?.type?.state !== 'pre' || !ev?.date) continue;
+      const tipoffMs = new Date(ev.date).getTime();
+      if (!Number.isFinite(tipoffMs)) continue;
+      const waitMs = tipoffMs - PRE_GAME_WAKE_LEAD_MS - now;
+      if (waitMs > 0 && waitMs < earliestWait) {
+        earliestWait = waitMs;
+      }
+    }
+    if (Number.isFinite(earliestWait) && earliestWait <= MAX_WAKE_WAIT_MS) {
+      gamesWakeTimer = setTimeout(() => {
+        gamesWakeTimer = null;
+        if (scheduledReqId !== gamesRequestId || refreshIntervalSec <= 0 || currentView !== 'games' || currentOffset !== 0) return;
+        if (document.hidden) return;
+        loadGames(currentOffset, { silent: true });
+      }, earliestWait);
+    }
+  }
 }
 
 document.querySelectorAll('.view-tab').forEach((btn) => {
@@ -594,16 +940,15 @@ document.querySelectorAll('.view-tab').forEach((btn) => {
       dateTabs.style.display = 'flex';
       gamesGrid.style.display = 'grid';
       standingsGrid.style.display = 'none';
-      renderGames();
+      if (!isFetching || lastUpdatedStr) {
+        renderGames();
+      }
       scheduleAutoRefresh();
     } else {
       dateTabs.style.display = 'none';
       gamesGrid.style.display = 'none';
       standingsGrid.style.display = 'grid';
-      if (refreshTimer) {
-        clearInterval(refreshTimer);
-        refreshTimer = null;
-      }
+      stopGamesAutoRefresh();
       if (cachedStandings) {
         renderStandings();
       } else {
@@ -614,8 +959,12 @@ document.querySelectorAll('.view-tab').forEach((btn) => {
 });
 
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && refreshIntervalSec > 0 && currentOffset === 0 && currentView === 'games' && hasLiveGame(cachedEvents)) {
+  if (document.hidden) return;
+  if (shouldAutoRefreshGames()) {
     loadGames(currentOffset, { silent: true });
+  }
+  if (shouldAutoRefreshDrawer()) {
+    loadAndRenderBoxscore(activeDrawerEventId, { silent: true });
   }
 });
 
@@ -643,6 +992,10 @@ autoRefreshSelect.addEventListener('change', () => {
   if (currentView === 'games') {
     renderGames();
     scheduleAutoRefresh();
+  }
+  if (isDrawerOpen()) {
+    updateDrawerMeta();
+    scheduleDrawerAutoRefresh();
   }
 });
 

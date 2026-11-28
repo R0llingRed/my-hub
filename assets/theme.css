@@ -437,6 +437,12 @@ button {
   font-weight: 600;
 }
 
+.spoiler-hidden {
+  filter: blur(7px);
+  user-select: none;
+  opacity: 0.45;
+}
+
 /* Scratchpad */
 .scratchpad {
   width: 100%;
